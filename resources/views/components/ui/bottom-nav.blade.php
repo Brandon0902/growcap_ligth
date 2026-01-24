@@ -18,7 +18,7 @@
         <span>Préstamos</span>
       </a>
 
-      <a href="#" class="flex flex-col items-center gap-1 text-xs text-gray-500">
+      <a href="{{ route('login') }}" class="flex flex-col items-center gap-1 text-xs text-gray-500">
         <span class="text-lg">👤</span>
         <span>Perfil</span>
       </a>
