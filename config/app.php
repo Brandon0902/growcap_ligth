@@ -67,6 +67,8 @@ return [
 
     'timezone' => 'UTC',
 
+    'backend_api_url' => env('BACKEND_API_URL'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
