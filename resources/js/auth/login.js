@@ -1,9 +1,7 @@
 const loginForm = document.querySelector('[data-login-form]');
 
 const updateStatus = (statusEl, message, variant = 'info') => {
-  if (!statusEl) {
-    return;
-  }
+  if (!statusEl) return;
 
   statusEl.textContent = message;
   statusEl.classList.remove(
@@ -32,6 +30,10 @@ if (loginForm) {
   const statusEl = document.querySelector('[data-login-status]');
   const submitButton = document.querySelector('[data-login-submit]');
 
+  const apiBaseUrl = (document.querySelector('[data-api-base-url]')?.getAttribute('data-api-base-url') || '')
+    .replace(/\/$/, '');
+  const loginEndpoint = apiBaseUrl ? `${apiBaseUrl}/auth/login` : '/api/auth/login';
+
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -51,7 +53,7 @@ if (loginForm) {
     };
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(loginEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +65,8 @@ if (loginForm) {
       const data = await response.json();
 
       if (!response.ok) {
-        const message = data?.message || data?.errors?.email?.[0] || 'No pudimos iniciar sesión. Revisa tus datos.';
+        const message =
+          data?.message || data?.errors?.email?.[0] || 'No pudimos iniciar sesión. Revisa tus datos.';
         updateStatus(statusEl, message, 'error');
         return;
       }

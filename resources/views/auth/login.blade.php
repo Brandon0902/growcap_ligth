@@ -21,7 +21,11 @@
           <p class="text-sm text-gray-500 mt-1">Ingresa con tu correo, usuario o código de cliente.</p>
         </div>
 
-        <form data-login-form class="space-y-4">
+        <form
+          data-login-form
+          data-api-base-url="{{ config('app.backend_api_url') }}"
+          class="space-y-4"
+        >
           <div>
             <label for="login" class="text-sm font-semibold text-gray-700">Email, usuario o código</label>
             <input id="login" name="login" type="text" autocomplete="username"
