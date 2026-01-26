@@ -6,7 +6,7 @@ return [
     'timeout' => env('GROWCAP_API_TIMEOUT', 10),
     'endpoints' => [
         'loan' => env('GROWCAP_API_LOAN_ENDPOINT', '/loans'),
-        'investment' => env('GROWCAP_API_INVESTMENT_ENDPOINT', '/investments'),
+        'investment' => env('GROWCAP_API_INVESTMENT_ENDPOINT', '/api/inversiones'),
         'savings' => env('GROWCAP_API_SAVINGS_ENDPOINT', '/savings'),
     ],
 ];

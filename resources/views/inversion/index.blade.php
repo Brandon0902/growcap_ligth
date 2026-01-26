@@ -38,14 +38,11 @@
           <div class="mt-2 text-lg font-bold">Solicitar inversión</div>
           <form class="mt-4 grid gap-3" method="POST" action="{{ route('inversion.solicitud') }}">
             @csrf
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="full_name" placeholder="Nombre completo" value="{{ old('full_name') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="email" type="email" placeholder="Correo" value="{{ old('email') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="phone" placeholder="Teléfono" value="{{ old('phone') }}" required>
             <div class="grid gap-3 sm:grid-cols-2">
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="amount" type="number" min="1" step="0.01" placeholder="Monto" value="{{ old('amount') }}" required>
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="term_months" type="number" min="1" placeholder="Plazo (meses)" value="{{ old('term_months') }}" required>
+              <input class="h-11 rounded-xl border border-gray-200 px-4" name="id_activo" type="number" min="1" placeholder="ID del plan" value="{{ old('id_activo') }}" required>
+              <input class="h-11 rounded-xl border border-gray-200 px-4" name="cantidad" type="number" min="1" step="0.01" placeholder="Cantidad a invertir" value="{{ old('cantidad') }}" required>
             </div>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="profile" placeholder="Perfil de riesgo (opcional)" value="{{ old('profile') }}">
+            <input class="h-11 rounded-xl border border-gray-200 px-4" name="tiempo" type="number" min="1" placeholder="Plazo en meses (opcional)" value="{{ old('tiempo') }}">
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud
             </button>
@@ -63,7 +60,7 @@
       </div>
 
       <div class="mt-6 rounded-2xl bg-purple-50/60 p-5 text-sm text-gray-700">
-        <span class="font-semibold">Nota:</span> Esta pantalla ya envía solicitudes a la API de Growcap según la configuración de <code>GROWCAP_API_BASE_URL</code>.
+        <span class="font-semibold">Nota:</span> Esta pantalla envía la solicitud a <code>/api/inversiones</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
       </div>
     </div>
   </div>
