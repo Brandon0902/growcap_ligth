@@ -1,6 +1,8 @@
 const investmentForm = document.querySelector('[data-investment-form]');
 const plansSelect = document.querySelector('[data-investment-plan-select]');
 const tokenDebug = document.querySelector('[data-investment-token-debug]');
+const periodInput = document.querySelector('[data-investment-plan-period]');
+const yieldInput = document.querySelector('[data-investment-plan-yield]');
 
 const setHiddenToken = (token, tokenType = 'Bearer') => {
   if (!investmentForm) return;
@@ -38,12 +40,33 @@ const renderPlans = (plans) => {
   plans.forEach((plan) => {
     const option = document.createElement('option');
     option.value = plan.id ?? '';
-    const rendimiento = plan.rendimiento
-      ? ` (${Number(plan.rendimiento).toFixed(2).replace(/\.?0+$/, '')}% anual)`
-      : '';
-    option.textContent = `${plan.label ?? 'Plan sin nombre'}${rendimiento}`;
+    option.dataset.periodo = plan.periodo ?? plan.tiempo ?? plan.plazo ?? '';
+    option.dataset.rendimiento = plan.rendimiento ?? plan.tasa ?? '';
+    option.textContent = `${plan.label ?? 'Plan sin nombre'}`;
     plansSelect.appendChild(option);
   });
+};
+
+const formatRendimiento = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return String(value);
+  return `${numeric.toFixed(2).replace(/\.?0+$/, '')}%`;
+};
+
+const updatePlanFields = () => {
+  if (!plansSelect) return;
+  const selected = plansSelect.options[plansSelect.selectedIndex];
+  const periodo = selected?.dataset?.periodo ?? '';
+  const rendimiento = selected?.dataset?.rendimiento ?? '';
+
+  if (periodInput) {
+    periodInput.value = periodo !== '' ? String(periodo) : '';
+  }
+
+  if (yieldInput) {
+    yieldInput.value = rendimiento !== '' ? formatRendimiento(rendimiento) : '';
+  }
 };
 
 const loadPlans = async () => {
@@ -72,6 +95,7 @@ const loadPlans = async () => {
 
     if (response.ok) {
       renderPlans(data?.data || []);
+      updatePlanFields();
     }
   } catch (error) {
     // Silent failure: server-side renders error message if needed.
@@ -80,4 +104,6 @@ const loadPlans = async () => {
 
 if (investmentForm && plansSelect) {
   loadPlans();
+  plansSelect.addEventListener('change', updatePlanFields);
+  updatePlanFields();
 }
