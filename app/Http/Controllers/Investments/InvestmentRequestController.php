@@ -6,21 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Services\Investments\InvestmentRequestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class InvestmentRequestController extends Controller
 {
     public function store(Request $request, InvestmentRequestService $service): RedirectResponse
     {
         $data = $request->validate([
-            'full_name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:120'],
-            'phone' => ['required', 'string', 'max:30'],
-            'amount' => ['required', 'numeric', 'min:1'],
-            'term_months' => ['required', 'integer', 'min:1'],
-            'profile' => ['nullable', 'string', 'max:120'],
+            'id_activo' => ['required', 'integer', 'min:1'],
+            'cantidad' => ['required', 'numeric', 'min:1'],
+            'tiempo' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $result = $service->submit($data);
+        $token = $request->input('auth_token');
+        $tokenType = $request->input('auth_token_type', 'Bearer');
+        Log::info('Investment request token received', [
+            'has_token' => !empty($token),
+            'token_type' => $tokenType,
+            'token_length' => $token ? strlen($token) : 0,
+        ]);
+
+        $result = $service->submit($data, $token, $tokenType);
 
         return back()->with($this->sessionPayload($result));
     }

@@ -32,20 +32,44 @@
         </div>
       @endif
 
+      @if (!empty($plansError))
+        <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {{ $plansError }}
+        </div>
+      @endif
+
       <div class="mt-8 grid gap-4 lg:grid-cols-2">
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
           <div class="text-sm text-gray-500">Acción principal</div>
           <div class="mt-2 text-lg font-bold">Solicitar inversión</div>
-          <form class="mt-4 grid gap-3" method="POST" action="{{ route('inversion.solicitud') }}">
+          <form
+            class="mt-4 grid gap-3"
+            method="POST"
+            action="{{ route('inversion.solicitud') }}"
+            data-investment-form
+            data-api-base-url="{{ config('app.backend_api_url') }}"
+            data-investment-plans-endpoint="/inversiones/planes"
+          >
             @csrf
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="full_name" placeholder="Nombre completo" value="{{ old('full_name') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="email" type="email" placeholder="Correo" value="{{ old('email') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="phone" placeholder="Teléfono" value="{{ old('phone') }}" required>
+            <input type="hidden" name="auth_token" value="">
+            <input type="hidden" name="auth_token_type" value="Bearer">
             <div class="grid gap-3 sm:grid-cols-2">
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="amount" type="number" min="1" step="0.01" placeholder="Monto" value="{{ old('amount') }}" required>
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="term_months" type="number" min="1" placeholder="Plazo (meses)" value="{{ old('term_months') }}" required>
+              <select class="h-11 rounded-xl border border-gray-200 px-4" name="id_activo" required data-investment-plan-select>
+                <option value="">Selecciona un plan</option>
+                @forelse ($plans ?? [] as $plan)
+                  <option value="{{ $plan['id'] ?? '' }}" @selected(old('id_activo') == ($plan['id'] ?? null))>
+                    {{ $plan['label'] ?? 'Plan sin nombre' }}
+                    @if (!empty($plan['rendimiento']))
+                      ({{ rtrim(rtrim(number_format((float) $plan['rendimiento'], 2, '.', ''), '0'), '.') }}% anual)
+                    @endif
+                  </option>
+                @empty
+                  <option value="" disabled>No hay planes disponibles</option>
+                @endforelse
+              </select>
+              <input class="h-11 rounded-xl border border-gray-200 px-4" name="cantidad" type="number" min="1" step="0.01" placeholder="Cantidad a invertir" value="{{ old('cantidad') }}" required>
             </div>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="profile" placeholder="Perfil de riesgo (opcional)" value="{{ old('profile') }}">
+            <input class="h-11 rounded-xl border border-gray-200 px-4" name="tiempo" type="number" min="1" placeholder="Plazo en meses (opcional)" value="{{ old('tiempo') }}">
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud
             </button>
@@ -63,7 +87,11 @@
       </div>
 
       <div class="mt-6 rounded-2xl bg-purple-50/60 p-5 text-sm text-gray-700">
-        <span class="font-semibold">Nota:</span> Esta pantalla ya envía solicitudes a la API de Growcap según la configuración de <code>GROWCAP_API_BASE_URL</code>.
+        <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/api/inversiones/planes</code> para listar planes y envía solicitudes a <code>/api/inversiones</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
+      </div>
+
+      <div class="mt-3 text-xs text-gray-500" data-investment-token-debug>
+        Token: verificando...
       </div>
     </div>
   </div>
