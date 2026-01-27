@@ -3,8 +3,8 @@
 namespace App\Services\Investments;
 
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class InvestmentRequestService
 {
@@ -18,14 +18,14 @@ class InvestmentRequestService
         return $this->get('investment_plans');
     }
 
-    private function get(string $endpointKey, ?string $tokenOverride = null, string $tokenType = 'Bearer'): array
+    private function get(string $endpointKey): array
     {
         $url = $this->buildUrl($endpointKey);
-        $token = $tokenOverride ?: config('growcap.token');
+        $token = config('growcap.token');
 
         try {
             $response = Http::acceptJson()
-                ->withToken($token, $tokenType)
+                ->withToken($token)
                 ->timeout((int) config('growcap.timeout'))
                 ->get($url);
         } catch (ConnectionException $exception) {
@@ -34,6 +34,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'message' => $exception->getMessage(),
             ]);
+
             return [
                 'success' => false,
                 'message' => 'No se pudo conectar con la API de Growcap. Intenta nuevamente.',
@@ -46,6 +47,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'status' => $response->status(),
             ]);
+
             return [
                 'success' => true,
                 'message' => data_get($response->json(), 'message'),
@@ -68,8 +70,12 @@ class InvestmentRequestService
         ];
     }
 
-    private function post(string $endpointKey, array $payload, ?string $tokenOverride = null, string $tokenType = 'Bearer'): array
-    {
+    private function post(
+        string $endpointKey,
+        array $payload,
+        ?string $tokenOverride = null,
+        string $tokenType = 'Bearer'
+    ): array {
         $url = $this->buildUrl($endpointKey);
         $token = $tokenOverride ?: config('growcap.token');
 
@@ -85,6 +91,7 @@ class InvestmentRequestService
                 'message' => $exception->getMessage(),
                 'payload' => $payload,
             ]);
+
             return [
                 'success' => false,
                 'message' => 'No se pudo conectar con la API de Growcap. Intenta nuevamente.',
@@ -97,6 +104,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'status' => $response->status(),
             ]);
+
             return [
                 'success' => true,
                 'message' => data_get($response->json(), 'message', 'Solicitud enviada correctamente.'),
@@ -104,31 +112,4 @@ class InvestmentRequestService
             ];
         }
 
-        Log::warning('Growcap API request failed (POST)', [
-            'endpoint' => $endpointKey,
-            'url' => $url,
-            'status' => $response->status(),
-            'body' => $response->body(),
-            'payload' => $payload,
-        ]);
-
-        return [
-            'success' => false,
-            'message' => data_get($response->json(), 'message', 'Ocurrió un error al enviar la solicitud.'),
-            'data' => $response->json(),
-            'status' => $response->status(),
-        ];
-    }
-
-    private function buildUrl(string $endpointKey): string
-    {
-        $baseUrl = rtrim((string) config('growcap.base_url'), '/');
-        $endpoint = (string) config("growcap.endpoints.{$endpointKey}");
-
-        if ($baseUrl !== '' && str_ends_with($baseUrl, '/api') && str_starts_with($endpoint, '/api/')) {
-            $endpoint = substr($endpoint, 4);
-        }
-
-        return $baseUrl . '/' . ltrim($endpoint, '/');
-    }
-}
+        Log::warning('Growca

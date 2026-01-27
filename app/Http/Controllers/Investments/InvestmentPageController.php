@@ -3,15 +3,27 @@
 namespace App\Http\Controllers\Investments;
 
 use App\Http\Controllers\Controller;
+use App\Services\Investments\InvestmentRequestService;
 use Illuminate\View\View;
 
 class InvestmentPageController extends Controller
 {
-    public function index(): View
+    public function index(InvestmentRequestService $service): View
     {
+        $plans = [];
+        $plansError = null;
+
+        $response = $service->plans();
+
+        if ($response['success'] ?? false) {
+            $plans = data_get($response, 'data.data', []);
+        } else {
+            $plansError = $response['message'] ?? 'No se pudieron cargar los planes.';
+        }
+
         return view('inversion.index', [
-            'plans' => [],
-            'plansError' => null,
+            'plans' => $plans,
+            'plansError' => $plansError,
         ]);
     }
 }
