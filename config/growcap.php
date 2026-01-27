@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'base_url' => env('GROWCAP_API_BASE_URL', 'https://api.example.com'),
+    'base_url' => env('GROWCAP_API_BASE_URL', env('BACKEND_API_URL', 'https://api.example.com')),
     'token' => env('GROWCAP_API_TOKEN'),
     'timeout' => env('GROWCAP_API_TIMEOUT', 10),
     'endpoints' => [
