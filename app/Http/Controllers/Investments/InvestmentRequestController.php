@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\Investments\InvestmentRequestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class InvestmentRequestController extends Controller
 {
@@ -20,11 +19,6 @@ class InvestmentRequestController extends Controller
 
         $token = $request->input('auth_token');
         $tokenType = $request->input('auth_token_type', 'Bearer');
-        Log::info('Investment request token received', [
-            'has_token' => !empty($token),
-            'token_type' => $tokenType,
-            'token_length' => $token ? strlen($token) : 0,
-        ]);
 
         $result = $service->submit($data, $token, $tokenType);
 
@@ -34,7 +28,7 @@ class InvestmentRequestController extends Controller
     private function sessionPayload(array $result): array
     {
         return [
-            'status_type' => $result['success'] ? 'success' : 'error',
+            'status_type' => ($result['success'] ?? false) ? 'success' : 'error',
             'status_message' => $result['message'] ?? 'No se pudo completar la solicitud.',
         ];
     }
