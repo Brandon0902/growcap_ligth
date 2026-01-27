@@ -19,6 +19,7 @@ class InvestmentRequestController extends Controller
 
         $token = $request->input('auth_token');
         $tokenType = $request->input('auth_token_type', 'Bearer');
+
         $result = $service->submit($data, $token, $tokenType);
 
         return back()->with($this->sessionPayload($result));
@@ -27,7 +28,7 @@ class InvestmentRequestController extends Controller
     private function sessionPayload(array $result): array
     {
         return [
-            'status_type' => $result['success'] ? 'success' : 'error',
+            'status_type' => ($result['success'] ?? false) ? 'success' : 'error',
             'status_message' => $result['message'] ?? 'No se pudo completar la solicitud.',
         ];
     }

@@ -114,6 +114,10 @@
       <div class="mt-6 rounded-2xl bg-purple-50/60 p-5 text-sm text-gray-700">
         <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/api/inversiones/planes</code> para listar planes y envía solicitudes a <code>/api/inversiones</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
       </div>
+
+      <div class="mt-3 text-xs text-gray-500" data-investment-token-debug>
+        Token: verificando...
+      </div>
     </div>
   </div>
 @endsection

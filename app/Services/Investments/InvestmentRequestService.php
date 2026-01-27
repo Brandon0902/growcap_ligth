@@ -18,14 +18,14 @@ class InvestmentRequestService
         return $this->get('investment_plans');
     }
 
-    private function get(string $endpointKey): array
+    private function get(string $endpointKey, ?string $tokenOverride = null, string $tokenType = 'Bearer'): array
     {
         $url = $this->buildUrl($endpointKey);
-        $token = config('growcap.token');
+        $token = $tokenOverride ?: config('growcap.token');
 
         try {
             $response = Http::acceptJson()
-                ->withToken($token)
+                ->withToken($token, $tokenType)
                 ->timeout((int) config('growcap.timeout'))
                 ->get($url);
         } catch (ConnectionException $exception) {
