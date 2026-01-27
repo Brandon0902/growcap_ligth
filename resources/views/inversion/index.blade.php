@@ -32,6 +32,12 @@
         </div>
       @endif
 
+      @if (!empty($plansError))
+        <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {{ $plansError }}
+        </div>
+      @endif
+
       <div class="mt-8 grid gap-4 lg:grid-cols-2">
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
           <div class="text-sm text-gray-500">Acción principal</div>
@@ -39,15 +45,31 @@
           <form class="mt-4 grid gap-3" method="POST" action="{{ route('inversion.solicitud') }}">
             @csrf
             <div class="grid gap-3 sm:grid-cols-2">
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="id_activo" type="number" min="1" placeholder="ID del plan" value="{{ old('id_activo') }}" required>
+              <select class="h-11 rounded-xl border border-gray-200 px-4" name="id_activo" required>
+                <option value="">Selecciona un plan</option>
+                @forelse ($plans ?? [] as $plan)
+                  <option value="{{ $plan['id'] ?? '' }}" @selected(old('id_activo') == ($plan['id'] ?? null))>
+                    {{ $plan['label'] ?? 'Plan sin nombre' }}
+                    @if (!empty($plan['rendimiento']))
+                      ({{ rtrim(rtrim(number_format((float) $plan['rendimiento'], 2, '.', ''), '0'), '.') }}% anual)
+                    @endif
+                  </option>
+                @empty
+                  <option value="" disabled>No hay planes disponibles</option>
+                @endforelse
+              </select>
+
               <input class="h-11 rounded-xl border border-gray-200 px-4" name="cantidad" type="number" min="1" step="0.01" placeholder="Cantidad a invertir" value="{{ old('cantidad') }}" required>
             </div>
+
             <input class="h-11 rounded-xl border border-gray-200 px-4" name="tiempo" type="number" min="1" placeholder="Plazo en meses (opcional)" value="{{ old('tiempo') }}">
+
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud
             </button>
           </form>
         </div>
+
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
           <div class="text-sm text-gray-500">Acción secundaria</div>
           <div class="mt-2 text-lg font-bold">Ver movimientos</div>
@@ -60,7 +82,7 @@
       </div>
 
       <div class="mt-6 rounded-2xl bg-purple-50/60 p-5 text-sm text-gray-700">
-        <span class="font-semibold">Nota:</span> Esta pantalla envía la solicitud a <code>/api/inversiones</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
+        <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/api/inversiones/planes</code> para listar planes y envía solicitudes a <code>/api/inversiones</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
       </div>
     </div>
   </div>
