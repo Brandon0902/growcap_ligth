@@ -112,4 +112,32 @@ class InvestmentRequestService
             ];
         }
 
-        Log::warning('Growca
+        Log::warning('Growcap API request failed (POST)', [
+            'endpoint' => $endpointKey,
+            'url' => $url,
+            'status' => $response->status(),
+            'body' => $response->body(),
+            'payload' => $payload,
+        ]);
+
+        return [
+            'success' => false,
+            'message' => data_get($response->json(), 'message', 'Ocurrió un error al enviar la solicitud.'),
+            'data' => $response->json(),
+            'status' => $response->status(),
+        ];
+    }
+
+    private function buildUrl(string $endpointKey): string
+    {
+        $baseUrl = rtrim((string) config('growcap.base_url'), '/');
+        $endpoint = (string) config("growcap.endpoints.{$endpointKey}");
+
+        // Evita terminar con /api/api/... cuando base_url ya incluye /api
+        if ($baseUrl !== '' && str_ends_with($baseUrl, '/api') && str_starts_with($endpoint, '/api/')) {
+            $endpoint = substr($endpoint, 4); // quita el primer "/api"
+        }
+
+        return $baseUrl . '/' . ltrim($endpoint, '/');
+    }
+}
