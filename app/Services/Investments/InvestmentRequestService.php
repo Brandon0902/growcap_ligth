@@ -62,11 +62,14 @@ class InvestmentRequestService
             'body' => $response->body(),
         ]);
 
+        $errors = $this->extractErrors($response->json());
+
         return [
             'success' => false,
-            'message' => data_get($response->json(), 'message', 'No se pudieron cargar los planes.'),
+            'message' => $this->buildErrorMessage($response->json(), 'No se pudieron cargar los planes.'),
             'data' => $response->json(),
             'status' => $response->status(),
+            'errors' => $errors,
         ];
     }
 
@@ -120,11 +123,14 @@ class InvestmentRequestService
             'payload' => $payload,
         ]);
 
+        $errors = $this->extractErrors($response->json());
+
         return [
             'success' => false,
-            'message' => data_get($response->json(), 'message', 'Ocurrió un error al enviar la solicitud.'),
+            'message' => $this->buildErrorMessage($response->json(), 'Ocurrió un error al enviar la solicitud.'),
             'data' => $response->json(),
             'status' => $response->status(),
+            'errors' => $errors,
         ];
     }
 
@@ -139,5 +145,44 @@ class InvestmentRequestService
         }
 
         return $baseUrl . '/' . ltrim($endpoint, '/');
+    }
+
+    private function buildErrorMessage($json, string $fallback): string
+    {
+        $message = data_get($json, 'message', $fallback);
+        $errors = $this->extractErrors($json);
+
+        if (empty($errors)) {
+            return $message;
+        }
+
+        return $message;
+    }
+
+    private function extractErrors($json): array
+    {
+        if (!is_array($json)) {
+            return [];
+        }
+
+        $errors = [];
+        foreach (['errors', 'detalles'] as $key) {
+            $values = data_get($json, $key);
+            if (!is_array($values)) {
+                continue;
+            }
+
+            foreach ($values as $field => $messages) {
+                if (is_array($messages)) {
+                    foreach ($messages as $message) {
+                        $errors[] = is_string($message) ? $message : json_encode($message);
+                    }
+                } else {
+                    $errors[] = is_string($messages) ? $messages : json_encode($messages);
+                }
+            }
+        }
+
+        return array_values(array_filter($errors, fn ($value) => $value !== null && $value !== ''));
     }
 }

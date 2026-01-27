@@ -18,6 +18,13 @@
       @if (session('status_message'))
         <div class="mt-6 rounded-2xl border px-4 py-3 text-sm {{ session('status_type') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700' }}">
           {{ session('status_message') }}
+          @if (is_array(session('status_errors')) && count(session('status_errors')) > 0)
+            <ul class="mt-2 list-disc pl-5">
+              @foreach (session('status_errors') as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          @endif
         </div>
       @endif
 
@@ -35,6 +42,13 @@
       @if (!empty($plansError))
         <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           {{ $plansError }}
+          @if (!empty($plansErrors))
+            <ul class="mt-2 list-disc pl-5">
+              @foreach ($plansErrors as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          @endif
         </div>
       @endif
 
@@ -52,6 +66,8 @@
             data-investment-plans-endpoint="/inversiones/planes"
           >
             @csrf
+            <input type="hidden" name="auth_token" value="">
+            <input type="hidden" name="auth_token_type" value="">
 
             <div class="grid gap-3 sm:grid-cols-2">
               <select

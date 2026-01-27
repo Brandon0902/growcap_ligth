@@ -12,6 +12,7 @@ class InvestmentPageController extends Controller
     {
         $plans = [];
         $plansError = null;
+        $plansErrors = [];
 
         $response = $service->plans();
 
@@ -19,11 +20,13 @@ class InvestmentPageController extends Controller
             $plans = data_get($response, 'data.data', []);
         } else {
             $plansError = $response['message'] ?? 'No se pudieron cargar los planes.';
+            $plansErrors = $response['errors'] ?? [];
         }
 
         return view('inversion.index', [
             'plans' => $plans,
             'plansError' => $plansError,
+            'plansErrors' => $plansErrors,
         ]);
     }
 }
