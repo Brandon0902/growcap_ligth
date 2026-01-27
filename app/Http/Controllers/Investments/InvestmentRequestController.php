@@ -12,12 +12,9 @@ class InvestmentRequestController extends Controller
     public function store(Request $request, InvestmentRequestService $service): RedirectResponse
     {
         $data = $request->validate([
-            'full_name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:120'],
-            'phone' => ['required', 'string', 'max:30'],
-            'amount' => ['required', 'numeric', 'min:1'],
-            'term_months' => ['required', 'integer', 'min:1'],
-            'profile' => ['nullable', 'string', 'max:120'],
+            'id_activo' => ['required', 'integer', 'min:1'],
+            'cantidad' => ['required', 'numeric', 'min:1'],
+            'tiempo' => ['nullable', 'integer', 'min:1'],
         ]);
 
         $result = $service->submit($data);
