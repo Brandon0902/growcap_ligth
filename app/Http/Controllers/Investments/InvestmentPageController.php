@@ -13,10 +13,14 @@ class InvestmentPageController extends Controller
         $plans = [];
         $plansError = null;
         $plansErrors = [];
-        $apiToken = (string) config('growcap.token');
-        $apiToken = trim($apiToken);
 
-        if ($apiToken !== '' && !in_array(strtolower($apiToken), ['null', 'undefined'], true)) {
+        $apiToken = trim((string) config('growcap.token'));
+
+        $tokenInvalid =
+            $apiToken === '' ||
+            in_array(strtolower($apiToken), ['null', 'undefined'], true);
+
+        if (!$tokenInvalid) {
             $response = $service->plans();
 
             if ($response['success'] ?? false) {
@@ -25,6 +29,8 @@ class InvestmentPageController extends Controller
                 $plansError = $response['message'] ?? 'No se pudieron cargar los planes.';
                 $plansErrors = $response['errors'] ?? [];
             }
+        } else {
+            $plansError = 'No hay token configurado para consumir la API de Growcap.';
         }
 
         return view('inversion.index', [
