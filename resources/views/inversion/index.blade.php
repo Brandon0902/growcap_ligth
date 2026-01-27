@@ -58,14 +58,18 @@
                   <option value="" disabled>No hay planes disponibles</option>
                 @endforelse
               </select>
+
               <input class="h-11 rounded-xl border border-gray-200 px-4" name="cantidad" type="number" min="1" step="0.01" placeholder="Cantidad a invertir" value="{{ old('cantidad') }}" required>
             </div>
+
             <input class="h-11 rounded-xl border border-gray-200 px-4" name="tiempo" type="number" min="1" placeholder="Plazo en meses (opcional)" value="{{ old('tiempo') }}">
+
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud
             </button>
           </form>
         </div>
+
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
           <div class="text-sm text-gray-500">Acción secundaria</div>
           <div class="mt-2 text-lg font-bold">Ver movimientos</div>
