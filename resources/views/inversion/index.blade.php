@@ -42,10 +42,24 @@
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
           <div class="text-sm text-gray-500">Acción principal</div>
           <div class="mt-2 text-lg font-bold">Solicitar inversión</div>
-          <form class="mt-4 grid gap-3" method="POST" action="{{ route('inversion.solicitud') }}">
+
+          <form
+            class="mt-4 grid gap-3"
+            method="POST"
+            action="{{ route('inversion.solicitud') }}"
+            data-investment-form
+            data-api-base-url="{{ config('app.backend_api_url') }}"
+            data-investment-plans-endpoint="/inversiones/planes"
+          >
             @csrf
+
             <div class="grid gap-3 sm:grid-cols-2">
-              <select class="h-11 rounded-xl border border-gray-200 px-4" name="id_activo" required>
+              <select
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="id_activo"
+                required
+                data-investment-plan-select
+              >
                 <option value="">Selecciona un plan</option>
                 @forelse ($plans ?? [] as $plan)
                   <option value="{{ $plan['id'] ?? '' }}" @selected(old('id_activo') == ($plan['id'] ?? null))>
@@ -59,10 +73,26 @@
                 @endforelse
               </select>
 
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="cantidad" type="number" min="1" step="0.01" placeholder="Cantidad a invertir" value="{{ old('cantidad') }}" required>
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="cantidad"
+                type="number"
+                min="1"
+                step="0.01"
+                placeholder="Cantidad a invertir"
+                value="{{ old('cantidad') }}"
+                required
+              >
             </div>
 
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="tiempo" type="number" min="1" placeholder="Plazo en meses (opcional)" value="{{ old('tiempo') }}">
+            <input
+              class="h-11 rounded-xl border border-gray-200 px-4"
+              name="tiempo"
+              type="number"
+              min="1"
+              placeholder="Plazo en meses (opcional)"
+              value="{{ old('tiempo') }}"
+            >
 
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud

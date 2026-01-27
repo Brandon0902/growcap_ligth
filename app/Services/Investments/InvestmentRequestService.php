@@ -3,14 +3,14 @@
 namespace App\Services\Investments;
 
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class InvestmentRequestService
 {
-    public function submit(array $payload): array
+    public function submit(array $payload, ?string $tokenOverride = null, string $tokenType = 'Bearer'): array
     {
-        return $this->post('investment', $payload);
+        return $this->post('investment', $payload, $tokenOverride, $tokenType);
     }
 
     public function plans(): array
@@ -70,14 +70,18 @@ class InvestmentRequestService
         ];
     }
 
-    private function post(string $endpointKey, array $payload): array
-    {
+    private function post(
+        string $endpointKey,
+        array $payload,
+        ?string $tokenOverride = null,
+        string $tokenType = 'Bearer'
+    ): array {
         $url = $this->buildUrl($endpointKey);
-        $token = config('growcap.token');
+        $token = $tokenOverride ?: config('growcap.token');
 
         try {
             $response = Http::acceptJson()
-                ->withToken($token)
+                ->withToken($token, $tokenType)
                 ->timeout((int) config('growcap.timeout'))
                 ->post($url, $payload);
         } catch (ConnectionException $exception) {
@@ -108,32 +112,4 @@ class InvestmentRequestService
             ];
         }
 
-        Log::warning('Growcap API request failed (POST)', [
-            'endpoint' => $endpointKey,
-            'url' => $url,
-            'status' => $response->status(),
-            'body' => $response->body(),
-            'payload' => $payload,
-        ]);
-
-        return [
-            'success' => false,
-            'message' => data_get($response->json(), 'message', 'Ocurrió un error al enviar la solicitud.'),
-            'data' => $response->json(),
-            'status' => $response->status(),
-        ];
-    }
-
-    private function buildUrl(string $endpointKey): string
-    {
-        $baseUrl = rtrim((string) config('growcap.base_url'), '/');
-        $endpoint = (string) config("growcap.endpoints.{$endpointKey}");
-
-        // Evita terminar con /api/api/... cuando base_url ya incluye /api
-        if ($baseUrl !== '' && str_ends_with($baseUrl, '/api') && str_starts_with($endpoint, '/api/')) {
-            $endpoint = substr($endpoint, 4); // quita el primer "/api"
-        }
-
-        return $baseUrl . '/' . ltrim($endpoint, '/');
-    }
-}
+        Log::warning('Growca

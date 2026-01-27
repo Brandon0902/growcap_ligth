@@ -17,7 +17,9 @@ class InvestmentRequestController extends Controller
             'tiempo' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $result = $service->submit($data);
+        $token = $request->input('auth_token');
+        $tokenType = $request->input('auth_token_type', 'Bearer');
+        $result = $service->submit($data, $token, $tokenType);
 
         return back()->with($this->sessionPayload($result));
     }

@@ -14,6 +14,7 @@ class InvestmentPageController extends Controller
         $plansError = null;
 
         $response = $service->plans();
+
         if ($response['success'] ?? false) {
             $plans = data_get($response, 'data.data', []);
         } else {
