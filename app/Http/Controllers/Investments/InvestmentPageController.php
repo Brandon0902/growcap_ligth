@@ -12,18 +12,25 @@ class InvestmentPageController extends Controller
     {
         $plans = [];
         $plansError = null;
+        $plansErrors = [];
+        $apiToken = (string) config('growcap.token');
+        $apiToken = trim($apiToken);
 
-        $response = $service->plans();
+        if ($apiToken !== '' && !in_array(strtolower($apiToken), ['null', 'undefined'], true)) {
+            $response = $service->plans();
 
-        if ($response['success'] ?? false) {
-            $plans = data_get($response, 'data.data', []);
-        } else {
-            $plansError = $response['message'] ?? 'No se pudieron cargar los planes.';
+            if ($response['success'] ?? false) {
+                $plans = data_get($response, 'data.data', []);
+            } else {
+                $plansError = $response['message'] ?? 'No se pudieron cargar los planes.';
+                $plansErrors = $response['errors'] ?? [];
+            }
         }
 
         return view('inversion.index', [
             'plans' => $plans,
             'plansError' => $plansError,
+            'plansErrors' => $plansErrors,
         ]);
     }
 }

@@ -18,6 +18,13 @@
       @if (session('status_message'))
         <div class="mt-6 rounded-2xl border px-4 py-3 text-sm {{ session('status_type') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700' }}">
           {{ session('status_message') }}
+          @if (is_array(session('status_errors')) && count(session('status_errors')) > 0)
+            <ul class="mt-2 list-disc pl-5">
+              @foreach (session('status_errors') as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          @endif
         </div>
       @endif
 
@@ -35,6 +42,13 @@
       @if (!empty($plansError))
         <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           {{ $plansError }}
+          @if (!empty($plansErrors))
+            <ul class="mt-2 list-disc pl-5">
+              @foreach ($plansErrors as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          @endif
         </div>
       @endif
 
@@ -52,6 +66,8 @@
             data-investment-plans-endpoint="/inversiones/planes"
           >
             @csrf
+            <input type="hidden" name="auth_token" value="">
+            <input type="hidden" name="auth_token_type" value="">
 
             <div class="grid gap-3 sm:grid-cols-2">
               <select
@@ -62,11 +78,13 @@
               >
                 <option value="">Selecciona un plan</option>
                 @forelse ($plans ?? [] as $plan)
-                  <option value="{{ $plan['id'] ?? '' }}" @selected(old('id_activo') == ($plan['id'] ?? null))>
+                  <option
+                    value="{{ $plan['id'] ?? '' }}"
+                    data-periodo="{{ $plan['periodo'] ?? $plan['tiempo'] ?? $plan['plazo'] ?? '' }}"
+                    data-rendimiento="{{ $plan['rendimiento'] ?? $plan['tasa'] ?? '' }}"
+                    @selected(old('id_activo') == ($plan['id'] ?? null))
+                  >
                     {{ $plan['label'] ?? 'Plan sin nombre' }}
-                    @if (!empty($plan['rendimiento']))
-                      ({{ rtrim(rtrim(number_format((float) $plan['rendimiento'], 2, '.', ''), '0'), '.') }}% anual)
-                    @endif
                   </option>
                 @empty
                   <option value="" disabled>No hay planes disponibles</option>
@@ -85,14 +103,25 @@
               >
             </div>
 
-            <input
-              class="h-11 rounded-xl border border-gray-200 px-4"
-              name="tiempo"
-              type="number"
-              min="1"
-              placeholder="Plazo en meses (opcional)"
-              value="{{ old('tiempo') }}"
-            >
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                name="tiempo"
+                type="text"
+                placeholder="Periodo en meses"
+                value="{{ old('tiempo') }}"
+                readonly
+                data-investment-plan-period
+              >
+
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                type="text"
+                placeholder="Rendimiento"
+                readonly
+                data-investment-plan-yield
+              >
+            </div>
 
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud

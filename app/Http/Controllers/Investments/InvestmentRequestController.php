@@ -30,6 +30,7 @@ class InvestmentRequestController extends Controller
         return [
             'status_type' => ($result['success'] ?? false) ? 'success' : 'error',
             'status_message' => $result['message'] ?? 'No se pudo completar la solicitud.',
+            'status_errors' => $result['errors'] ?? [],
         ];
     }
 }
