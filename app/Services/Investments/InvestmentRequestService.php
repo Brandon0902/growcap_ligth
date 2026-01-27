@@ -36,6 +36,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'message' => $exception->getMessage(),
             ]);
+
             return [
                 'success' => false,
                 'message' => 'No se pudo conectar con la API de Growcap. Intenta nuevamente.',
@@ -48,6 +49,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'status' => $response->status(),
             ]);
+
             return [
                 'success' => true,
                 'message' => data_get($response->json(), 'message'),
@@ -89,6 +91,7 @@ class InvestmentRequestService
                 'message' => $exception->getMessage(),
                 'payload' => $payload,
             ]);
+
             return [
                 'success' => false,
                 'message' => 'No se pudo conectar con la API de Growcap. Intenta nuevamente.',
@@ -101,6 +104,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'status' => $response->status(),
             ]);
+
             return [
                 'success' => true,
                 'message' => data_get($response->json(), 'message', 'Solicitud enviada correctamente.'),
