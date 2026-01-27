@@ -34,6 +34,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'message' => $exception->getMessage(),
             ]);
+
             return [
                 'success' => false,
                 'message' => 'No se pudo conectar con la API de Growcap. Intenta nuevamente.',
@@ -46,6 +47,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'status' => $response->status(),
             ]);
+
             return [
                 'success' => true,
                 'message' => data_get($response->json(), 'message'),
@@ -85,6 +87,7 @@ class InvestmentRequestService
                 'message' => $exception->getMessage(),
                 'payload' => $payload,
             ]);
+
             return [
                 'success' => false,
                 'message' => 'No se pudo conectar con la API de Growcap. Intenta nuevamente.',
@@ -97,6 +100,7 @@ class InvestmentRequestService
                 'url' => $url,
                 'status' => $response->status(),
             ]);
+
             return [
                 'success' => true,
                 'message' => data_get($response->json(), 'message', 'Solicitud enviada correctamente.'),
@@ -125,8 +129,9 @@ class InvestmentRequestService
         $baseUrl = rtrim((string) config('growcap.base_url'), '/');
         $endpoint = (string) config("growcap.endpoints.{$endpointKey}");
 
+        // Evita terminar con /api/api/... cuando base_url ya incluye /api
         if ($baseUrl !== '' && str_ends_with($baseUrl, '/api') && str_starts_with($endpoint, '/api/')) {
-            $endpoint = substr($endpoint, 4);
+            $endpoint = substr($endpoint, 4); // quita el primer "/api"
         }
 
         return $baseUrl . '/' . ltrim($endpoint, '/');
