@@ -14,9 +14,13 @@ class InvestmentPageController extends Controller
         $plansError = null;
         $plansErrors = [];
 
-        $apiToken = (string) config('growcap.token');
+        $apiToken = trim((string) config('growcap.token'));
 
-        if ($apiToken !== '') {
+        $tokenInvalid =
+            $apiToken === '' ||
+            in_array(strtolower($apiToken), ['null', 'undefined'], true);
+
+        if (!$tokenInvalid) {
             $response = $service->plans();
 
             if ($response['success'] ?? false) {
