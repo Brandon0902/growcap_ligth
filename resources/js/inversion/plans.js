@@ -3,6 +3,15 @@ const plansSelect = document.querySelector('[data-investment-plan-select]');
 const tokenDebug = document.querySelector('[data-investment-token-debug]');
 const periodInput = document.querySelector('[data-investment-plan-period]');
 const yieldInput = document.querySelector('[data-investment-plan-yield]');
+const submitButton = investmentForm?.querySelector('button[type="submit"]');
+
+const getJson = async (response) => {
+  try {
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+};
 
 const setHiddenToken = (token, tokenType = 'Bearer') => {
   if (!investmentForm) return;
@@ -69,6 +78,55 @@ const updatePlanFields = () => {
   }
 };
 
+const extractInvestmentId = (payload) => {
+  if (!payload || typeof payload !== 'object') return null;
+  const directId = payload.id ?? payload.inversion_id ?? payload.inversionId ?? null;
+  if (directId) return directId;
+
+  const data = payload.data ?? payload.inversion ?? null;
+  if (data && typeof data === 'object') {
+    return (
+      data.id ??
+      data.inversion_id ??
+      data.inversionId ??
+      data.id_inversion ??
+      data.folio ??
+      null
+    );
+  }
+
+  return null;
+};
+
+const startStripeCheckout = async ({ apiBaseUrl, token, tokenType, investmentId }) => {
+  const endpointTemplate =
+    investmentForm?.getAttribute('data-investment-stripe-endpoint-template') ||
+    '/api/inversiones/{id}/stripe/checkout';
+  const returnUrl =
+    investmentForm?.getAttribute('data-investment-stripe-return-url') || window.location.href;
+
+  const endpoint = endpointTemplate.replace('{id}', investmentId);
+
+  const response = await fetch(`${apiBaseUrl}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: `${tokenType} ${token}`,
+    },
+    body: JSON.stringify({ return_url: returnUrl }),
+  });
+
+  const data = await getJson(response);
+
+  if (!response.ok || !data?.url) {
+    const message = data?.error || data?.message || 'No se pudo iniciar el pago con Stripe.';
+    throw new Error(message);
+  }
+
+  window.location.assign(data.url);
+};
+
 const loadPlans = async () => {
   if (!investmentForm) return;
 
@@ -102,8 +160,76 @@ const loadPlans = async () => {
   }
 };
 
+const handleInvestmentSubmit = () => {
+  if (!investmentForm) return;
+
+  investmentForm.addEventListener('submit', async (event) => {
+    const selectedPayment = investmentForm.querySelector(
+      'input[name="payment_method"]:checked'
+    );
+
+    if (!selectedPayment || selectedPayment.value !== 'stripe') {
+      return;
+    }
+
+    const apiBaseUrl = (investmentForm.getAttribute('data-api-base-url') || '').replace(/\/$/, '');
+    const requestEndpoint =
+      investmentForm.getAttribute('data-investment-request-endpoint') || '/api/inversiones';
+    const token = localStorage.getItem('gc_access_token');
+    const tokenType = localStorage.getItem('gc_token_type') || 'Bearer';
+
+    if (!apiBaseUrl || !token) return;
+
+    event.preventDefault();
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Procesando...';
+    }
+
+    const formData = new FormData(investmentForm);
+    const payload = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch(`${apiBaseUrl}${requestEndpoint}`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `${tokenType} ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await getJson(response);
+
+      if (!response.ok) {
+        const message = data?.message || data?.error || 'No se pudo enviar la solicitud.';
+        throw new Error(message);
+      }
+
+      const investmentId = extractInvestmentId(data);
+
+      if (!investmentId) {
+        throw new Error('No se encontró el ID de la inversión para iniciar el pago.');
+      }
+
+      await startStripeCheckout({ apiBaseUrl, token, tokenType, investmentId });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Ocurrió un error al iniciar el pago.';
+      window.alert(message);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Enviar solicitud';
+      }
+    }
+  });
+};
+
 if (investmentForm && plansSelect) {
   loadPlans();
   plansSelect.addEventListener('change', updatePlanFields);
   updatePlanFields();
+  handleInvestmentSubmit();
 }
