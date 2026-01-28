@@ -48,6 +48,9 @@
             data-investment-form
             data-api-base-url="{{ config('app.backend_api_url') }}"
             data-investment-plans-endpoint="/inversiones/planes"
+            data-investment-request-endpoint="/api/inversiones"
+            data-investment-stripe-endpoint-template="/api/inversiones/{id}/stripe/checkout"
+            data-investment-stripe-return-url="{{ url('/inversion') }}"
           >
             @csrf
             <input type="hidden" name="auth_token" value="">
@@ -105,6 +108,29 @@
                 readonly
                 data-investment-plan-yield
               >
+            </div>
+
+            <div class="grid gap-3">
+              <div class="text-sm font-semibold text-gray-700">Forma de pago</div>
+              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="normal"
+                  class="text-purple-700"
+                  checked
+                >
+                <span>Registrar inversión (pago manual)</span>
+              </label>
+              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="stripe"
+                  class="text-purple-700"
+                >
+                <span>Pagar ahora con Stripe</span>
+              </label>
             </div>
 
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
