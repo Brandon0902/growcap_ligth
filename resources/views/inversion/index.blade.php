@@ -15,19 +15,6 @@
         </div>
       </div>
 
-      @if (session('status_message'))
-        <div class="mt-6 rounded-2xl border px-4 py-3 text-sm {{ session('status_type') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700' }}">
-          {{ session('status_message') }}
-          @if (is_array(session('status_errors')) && count(session('status_errors')) > 0)
-            <ul class="mt-2 list-disc pl-5">
-              @foreach (session('status_errors') as $error)
-                <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          @endif
-        </div>
-      @endif
-
       @if ($errors->any())
         <div class="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           <div class="font-semibold">Revisa los campos del formulario:</div>
