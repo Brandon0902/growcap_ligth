@@ -1,6 +1,5 @@
 const investmentForm = document.querySelector('[data-investment-form]');
 const plansSelect = document.querySelector('[data-investment-plan-select]');
-const tokenDebug = document.querySelector('[data-investment-token-debug]');
 const periodInput = document.querySelector('[data-investment-plan-period]');
 const yieldInput = document.querySelector('[data-investment-plan-yield]');
 const submitButton = investmentForm?.querySelector('button[type="submit"]');
@@ -9,6 +8,7 @@ const buildApiUrl = (baseUrl, endpoint) => {
   const cleanBase = (baseUrl || '').replace(/\/$/, '');
   let cleanEndpoint = endpoint || '';
 
+  // Evita /api/api cuando base ya trae /api y endpoint también
   if (cleanBase.endsWith('/api') && cleanEndpoint.startsWith('/api/')) {
     cleanEndpoint = cleanEndpoint.slice(4);
   }
@@ -31,18 +31,6 @@ const setHiddenToken = (token, tokenType = 'Bearer') => {
 
   if (tokenInput) tokenInput.value = token || '';
   if (tokenTypeInput) tokenTypeInput.value = tokenType || 'Bearer';
-};
-
-const updateTokenDebug = (token, tokenType, apiBaseUrl) => {
-  if (!tokenDebug) return;
-
-  if (!token) {
-    tokenDebug.textContent = 'Token: no encontrado en localStorage (gc_access_token).';
-    return;
-  }
-
-  const preview = token.length > 10 ? `${token.slice(0, 6)}...${token.slice(-4)}` : token;
-  tokenDebug.textContent = `Token: ${preview} | tipo: ${tokenType} | base: ${apiBaseUrl || 'sin BACKEND_API_URL'}`;
 };
 
 const renderPlans = (plans) => {
@@ -80,17 +68,13 @@ const updatePlanFields = () => {
   const periodo = selected?.dataset?.periodo ?? '';
   const rendimiento = selected?.dataset?.rendimiento ?? '';
 
-  if (periodInput) {
-    periodInput.value = periodo !== '' ? String(periodo) : '';
-  }
-
-  if (yieldInput) {
-    yieldInput.value = rendimiento !== '' ? formatRendimiento(rendimiento) : '';
-  }
+  if (periodInput) periodInput.value = periodo !== '' ? String(periodo) : '';
+  if (yieldInput) yieldInput.value = rendimiento !== '' ? formatRendimiento(rendimiento) : '';
 };
 
 const extractInvestmentId = (payload) => {
   if (!payload || typeof payload !== 'object') return null;
+
   const directId = payload.id ?? payload.inversion_id ?? payload.inversionId ?? null;
   if (directId) return directId;
 
@@ -113,8 +97,10 @@ const startStripeCheckout = async ({ apiBaseUrl, token, tokenType, investmentId 
   const endpointTemplate =
     investmentForm?.getAttribute('data-investment-stripe-endpoint-template') ||
     '/api/inversiones/{id}/stripe/checkout';
+
   const returnUrl =
-    investmentForm?.getAttribute('data-investment-stripe-return-url') || window.location.href;
+    investmentForm?.getAttribute('data-investment-stripe-return-url') ||
+    window.location.href;
 
   const endpoint = endpointTemplate.replace('{id}', investmentId);
 
@@ -147,8 +133,8 @@ const loadPlans = async () => {
   const token = localStorage.getItem('gc_access_token');
   const tokenType = localStorage.getItem('gc_token_type') || 'Bearer';
 
+  // ✅ importante: tu POST tradicional usa estos hidden inputs
   setHiddenToken(token, tokenType);
-  updateTokenDebug(token, tokenType, apiBaseUrl);
 
   if (!apiBaseUrl || !token) return;
 
@@ -160,14 +146,14 @@ const loadPlans = async () => {
       },
     });
 
-    const data = await response.json();
+    const data = await getJson(response);
 
     if (response.ok) {
       renderPlans(data?.data || []);
       updatePlanFields();
     }
   } catch (error) {
-    // Silent failure: server-side renders error message if needed.
+    // silent
   }
 };
 
@@ -175,10 +161,9 @@ const handleInvestmentSubmit = () => {
   if (!investmentForm) return;
 
   investmentForm.addEventListener('submit', async (event) => {
-    const selectedPayment = investmentForm.querySelector(
-      'input[name="payment_method"]:checked'
-    );
+    const selectedPayment = investmentForm.querySelector('input[name="payment_method"]:checked');
 
+    // Si no es Stripe, deja que el submit normal siga (Laravel)
     if (!selectedPayment || selectedPayment.value !== 'stripe') {
       return;
     }
@@ -186,6 +171,7 @@ const handleInvestmentSubmit = () => {
     const apiBaseUrl = (investmentForm.getAttribute('data-api-base-url') || '').replace(/\/$/, '');
     const requestEndpoint =
       investmentForm.getAttribute('data-investment-request-endpoint') || '/api/inversiones';
+
     const token = localStorage.getItem('gc_access_token');
     const tokenType = localStorage.getItem('gc_token_type') || 'Bearer';
 
@@ -220,7 +206,6 @@ const handleInvestmentSubmit = () => {
       }
 
       const investmentId = extractInvestmentId(data);
-
       if (!investmentId) {
         throw new Error('No se encontró el ID de la inversión para iniciar el pago.');
       }
