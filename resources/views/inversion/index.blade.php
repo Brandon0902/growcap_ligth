@@ -15,6 +15,14 @@
         </div>
       </div>
 
+      {{-- ✅ Alerta de éxito (se mantiene) --}}
+      @if (session('status_message') && session('status_type') === 'success')
+        <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {{ session('status_message') }}
+        </div>
+      @endif
+
+      {{-- ✅ Errores de validación --}}
       @if ($errors->any())
         <div class="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           <div class="font-semibold">Revisa los campos del formulario:</div>
@@ -26,18 +34,7 @@
         </div>
       @endif
 
-      @if (!empty($plansError))
-        <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          {{ $plansError }}
-          @if (!empty($plansErrors))
-            <ul class="mt-2 list-disc pl-5">
-              @foreach ($plansErrors as $error)
-                <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          @endif
-        </div>
-      @endif
+      {{-- ❌ Eliminado: $plansError (mensaje de "no hay token...") --}}
 
       <div class="mt-8 grid gap-4 lg:grid-cols-2">
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
@@ -131,9 +128,7 @@
         <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/api/inversiones/planes</code> para listar planes y envía solicitudes a <code>/api/inversiones</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
       </div>
 
-      <div class="mt-3 text-xs text-gray-500" data-investment-token-debug>
-        Token: verificando...
-      </div>
+      {{-- ❌ Eliminado: debug visual del token --}}
     </div>
   </div>
 @endsection
