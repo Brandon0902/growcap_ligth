@@ -12,14 +12,18 @@ class SavingsRequestController extends Controller
     public function store(Request $request, SavingsRequestService $service): RedirectResponse
     {
         $data = $request->validate([
-            'full_name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:120'],
-            'phone' => ['required', 'string', 'max:30'],
-            'amount' => ['required', 'numeric', 'min:1'],
-            'frequency' => ['required', 'string', 'max:40'],
+            'ahorro_id' => ['required', 'integer', 'min:1'],
+            'monto_ahorro' => ['required', 'numeric', 'min:0'],
+            'cuota' => ['required', 'numeric', 'min:0'],
+            'frecuencia_pago' => ['nullable', 'string', 'max:20'],
+            'fecha_inicio' => ['nullable', 'date'],
+            'fecha_fin' => ['nullable', 'date'],
         ]);
 
-        $result = $service->submit($data);
+        $token = $request->input('auth_token');
+        $tokenType = $request->input('auth_token_type', 'Bearer');
+
+        $result = $service->submit($data, $token, $tokenType);
 
         return back()->with($this->sessionPayload($result));
     }
@@ -27,8 +31,9 @@ class SavingsRequestController extends Controller
     private function sessionPayload(array $result): array
     {
         return [
-            'status_type' => $result['success'] ? 'success' : 'error',
+            'status_type' => ($result['success'] ?? false) ? 'success' : 'error',
             'status_message' => $result['message'] ?? 'No se pudo completar la solicitud.',
+            'status_errors' => $result['errors'] ?? [],
         ];
     }
 }
