@@ -143,7 +143,7 @@ const loadPlans = async () => {
   if (!loanForm) return;
 
   const apiBaseUrl = (loanForm.getAttribute('data-api-base-url') || '').replace(/\/$/, '');
-  const endpoint = loanForm.getAttribute('data-loan-plans-endpoint') || '/api/prestamos/planes';
+  const endpoint = loanForm.getAttribute('data-loan-plans-endpoint') || '/prestamos/planes';
 
   const token = localStorage.getItem('gc_access_token');
   const tokenType = localStorage.getItem('gc_token_type') || 'Bearer';

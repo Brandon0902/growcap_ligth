@@ -43,7 +43,7 @@
             enctype="multipart/form-data"
             data-loan-form
             data-api-base-url="{{ config('app.backend_api_url') }}"
-            data-loan-plans-endpoint="/api/prestamos/planes"
+            data-loan-plans-endpoint="/prestamos/planes"
           >
             @csrf
             <input type="hidden" name="auth_token" value="">
@@ -186,7 +186,7 @@
       </div>
 
       <div class="mt-6 rounded-2xl bg-purple-50/60 p-5 text-sm text-gray-700">
-        <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/api/prestamos/planes</code> para listar planes y envía solicitudes a <code>/api/prestamos</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
+        <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/prestamos/planes</code> para listar planes y envía solicitudes a <code>/prestamos</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
       </div>
     </div>
   </div>
