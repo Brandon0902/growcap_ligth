@@ -27,11 +27,12 @@
       @elseif ($stripeStatus)
         @php
           $stripeIsSuccess = $stripeStatus === 'success';
-          $stripeLabel = $stripeIsSuccess ? 'Pago confirmado' : 'Pago cancelado';
-          $stripeSuffix = $stripeAction ? " (".$stripeAction.")" : '';
+          $stripeLabel = $stripeIsSuccess
+            ? 'Pago confirmado, pendiente de revisión'
+            : 'Pago cancelado';
         @endphp
         <div class="mt-6 rounded-2xl border px-4 py-3 text-sm {{ $stripeIsSuccess ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700' }}">
-          {{ $stripeLabel }}{{ $stripeSuffix }}.
+          {{ $stripeLabel }}.
         </div>
       @endif
 
