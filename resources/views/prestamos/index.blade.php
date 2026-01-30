@@ -36,16 +36,139 @@
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
           <div class="text-sm text-gray-500">Acción principal</div>
           <div class="mt-2 text-lg font-bold">Solicitar préstamo</div>
-          <form class="mt-4 grid gap-3" method="POST" action="{{ route('prestamos.solicitud') }}">
+          <form
+            class="mt-4 grid gap-3"
+            method="POST"
+            action="{{ route('prestamos.solicitud') }}"
+            enctype="multipart/form-data"
+            data-loan-form
+            data-api-base-url="{{ config('app.backend_api_url') }}"
+            data-loan-plans-endpoint="/prestamos/planes"
+          >
             @csrf
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="full_name" placeholder="Nombre completo" value="{{ old('full_name') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="email" type="email" placeholder="Correo" value="{{ old('email') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="phone" placeholder="Teléfono" value="{{ old('phone') }}" required>
+            <input type="hidden" name="auth_token" value="">
+            <input type="hidden" name="auth_token_type" value="">
+
             <div class="grid gap-3 sm:grid-cols-2">
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="amount" type="number" min="1" step="0.01" placeholder="Monto" value="{{ old('amount') }}" required>
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="term_months" type="number" min="1" placeholder="Plazo (meses)" value="{{ old('term_months') }}" required>
+              <select
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="id_activo"
+                required
+                data-loan-plan-select
+                data-loan-selected="{{ old('id_activo') }}"
+              >
+                <option value="">Selecciona un plan</option>
+              </select>
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="cantidad"
+                type="number"
+                min="1"
+                step="0.01"
+                placeholder="Monto solicitado"
+                value="{{ old('cantidad') }}"
+                required
+                data-loan-amount
+              >
             </div>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="purpose" placeholder="Destino del préstamo (opcional)" value="{{ old('purpose') }}">
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                type="text"
+                placeholder="Periodo"
+                readonly
+                data-loan-plan-period
+              >
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                type="text"
+                placeholder="Semanas"
+                readonly
+                data-loan-plan-weeks
+              >
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                type="text"
+                placeholder="Interés"
+                readonly
+                data-loan-plan-interest
+              >
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                type="text"
+                placeholder="Monto máximo"
+                readonly
+                data-loan-plan-max
+              >
+            </div>
+
+            <div class="grid gap-3">
+              <div class="text-sm font-semibold text-gray-700">Aval</div>
+              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="radio"
+                  name="aval_method"
+                  value="codigo"
+                  class="text-purple-700"
+                  checked
+                  data-loan-aval-toggle
+                >
+                <span>Usar código de aval</span>
+              </label>
+              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="radio"
+                  name="aval_method"
+                  value="documentos"
+                  class="text-purple-700"
+                  data-loan-aval-toggle
+                >
+                <span>Subir documentos del aval</span>
+              </label>
+            </div>
+
+            <div class="grid gap-3" data-loan-aval-code>
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="codigo_aval"
+                placeholder="Código de aval"
+                value="{{ old('codigo_aval') }}"
+              >
+              <p class="text-xs text-gray-500">Ingresa el código del aval activo. Si no lo tienes, sube los documentos.</p>
+            </div>
+
+            <div class="grid gap-3" data-loan-aval-docs hidden>
+              <div class="text-sm text-gray-500">Documentos requeridos (PDF o imagen, máximo 5MB).</div>
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4 py-2"
+                name="doc_solicitud_aval"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png"
+              >
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4 py-2"
+                name="doc_comprobante_domicilio"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png"
+              >
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4 py-2"
+                name="doc_ine_frente"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png"
+              >
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4 py-2"
+                name="doc_ine_reverso"
+                type="file"
+                accept="application/pdf,image/jpeg,image/png"
+              >
+            </div>
+
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud
             </button>
@@ -63,7 +186,7 @@
       </div>
 
       <div class="mt-6 rounded-2xl bg-purple-50/60 p-5 text-sm text-gray-700">
-        <span class="font-semibold">Nota:</span> Esta pantalla ya envía solicitudes a la API de Growcap según la configuración de <code>GROWCAP_API_BASE_URL</code>.
+        <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/prestamos/planes</code> para listar planes y envía solicitudes a <code>/prestamos</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
       </div>
     </div>
   </div>
