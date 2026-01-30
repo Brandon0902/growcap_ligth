@@ -254,7 +254,7 @@ const handleSavingsSubmit = () => {
     const apiBaseUrl = (savingsForm.getAttribute('data-api-base-url') || '').replace(/\/$/, '');
     const requestEndpoint = savingsForm.getAttribute('data-savings-request-endpoint') || '/api/ahorros';
 
-    // Merge: returnUrl configurable + fallback
+    // returnUrl configurable + fallback
     const configuredReturnUrl = savingsForm.getAttribute('data-savings-stripe-return-url');
     const returnUrl = configuredReturnUrl || `${window.location.origin}/ahorro`;
 
