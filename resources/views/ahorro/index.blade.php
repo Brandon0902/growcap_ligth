@@ -46,7 +46,7 @@
             data-savings-frequency-endpoint="/ahorros/frecuencia"
             data-savings-request-endpoint="/api/ahorros"
             data-savings-stripe-endpoint-template="/api/ahorros/{id}/stripe/checkout"
-            data-savings-stripe-return-url="{{ url('/ahorro') }}"
+            data-savings-stripe-return-url="{{ route('ahorro.index') }}"
           >
             @csrf
             <input type="hidden" name="auth_token" value="">

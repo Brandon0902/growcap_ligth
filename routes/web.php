@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'dashboard')->name('dashboard');
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/ahorro', 'ahorro.index')->name('ahorro.index');
+Route::redirect('/cliente/ahorros', '/ahorro');
+Route::redirect('/clientes/ahorro', '/ahorro');
 Route::get('/inversion', [InvestmentPageController::class, 'index'])->name('inversion.index');
 Route::view('/prestamos', 'prestamos.index')->name('prestamos.index');
 
