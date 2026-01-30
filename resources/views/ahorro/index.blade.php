@@ -36,18 +36,124 @@
         <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
           <div class="text-sm text-gray-500">Acción principal</div>
           <div class="mt-2 text-lg font-bold">Solicitar ahorro</div>
-          <form class="mt-4 grid gap-3" method="POST" action="{{ route('ahorro.solicitud') }}">
+          <form
+            class="mt-4 grid gap-3"
+            method="POST"
+            action="{{ route('ahorro.solicitud') }}"
+            data-savings-form
+            data-api-base-url="{{ config('app.backend_api_url') }}"
+            data-savings-plans-endpoint="/ahorros/planes"
+            data-savings-frequency-endpoint="/ahorros/frecuencia"
+            data-savings-request-endpoint="/api/ahorros"
+            data-savings-stripe-endpoint-template="/api/ahorros/{id}/stripe/checkout"
+            data-savings-stripe-return-url="{{ url('/ahorro') }}"
+          >
             @csrf
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="full_name" placeholder="Nombre completo" value="{{ old('full_name') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="email" type="email" placeholder="Correo" value="{{ old('email') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="phone" placeholder="Teléfono" value="{{ old('phone') }}" required>
-            <input class="h-11 rounded-xl border border-gray-200 px-4" name="amount" type="number" min="1" step="0.01" placeholder="Monto inicial" value="{{ old('amount') }}" required>
-            <select class="h-11 rounded-xl border border-gray-200 px-4" name="frequency" required>
-              <option value="" disabled {{ old('frequency') ? '' : 'selected' }}>Frecuencia de depósito</option>
-              <option value="mensual" {{ old('frequency') === 'mensual' ? 'selected' : '' }}>Mensual</option>
-              <option value="quincenal" {{ old('frequency') === 'quincenal' ? 'selected' : '' }}>Quincenal</option>
-              <option value="semanal" {{ old('frequency') === 'semanal' ? 'selected' : '' }}>Semanal</option>
-            </select>
+            <input type="hidden" name="auth_token" value="">
+            <input type="hidden" name="auth_token_type" value="">
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <select
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="ahorro_id"
+                required
+                data-savings-plan-select
+              >
+                <option value="">Selecciona un plan</option>
+              </select>
+
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="monto_ahorro"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Monto inicial"
+                value="{{ old('monto_ahorro') }}"
+                required
+              >
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="cuota"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Cuota por frecuencia"
+                value="{{ old('cuota') }}"
+                required
+                data-savings-cuota
+              >
+
+              <select
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="frecuencia_pago"
+                required
+                data-savings-frequency
+              >
+                <option value="" disabled {{ old('frecuencia_pago') ? '' : 'selected' }}>Frecuencia de depósito</option>
+                <option value="Mensual" {{ old('frecuencia_pago') === 'Mensual' ? 'selected' : '' }}>Mensual</option>
+                <option value="Quincenal" {{ old('frecuencia_pago') === 'Quincenal' ? 'selected' : '' }}>Quincenal</option>
+                <option value="Semanal" {{ old('frecuencia_pago') === 'Semanal' ? 'selected' : '' }}>Semanal</option>
+              </select>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                type="text"
+                placeholder="Rendimiento"
+                readonly
+                data-savings-plan-yield
+              >
+
+              <input
+                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                type="text"
+                placeholder="Meses mínimos"
+                readonly
+                data-savings-plan-min-months
+              >
+            </div>
+
+            <div class="text-xs text-gray-500" data-savings-minimum>
+              Selecciona un plan para conocer la cuota mínima.
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-2" data-savings-fecha-fin-wrapper hidden>
+              <input
+                class="h-11 rounded-xl border border-gray-200 px-4"
+                name="fecha_fin"
+                type="date"
+                value="{{ old('fecha_fin') }}"
+                data-savings-fecha-fin
+              >
+            </div>
+
+            <div class="grid gap-3">
+              <div class="text-sm font-semibold text-gray-700">Forma de pago</div>
+              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="normal"
+                  class="text-purple-700"
+                  checked
+                >
+                <span>Registrar ahorro (pago manual)</span>
+              </label>
+              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="stripe"
+                  class="text-purple-700"
+                >
+                <span>Pagar ahora con Stripe</span>
+              </label>
+            </div>
             <button class="w-full h-11 rounded-xl bg-purple-700 text-white font-semibold hover:bg-purple-800 transition" type="submit">
               Enviar solicitud
             </button>
@@ -65,7 +171,7 @@
       </div>
 
       <div class="mt-6 rounded-2xl bg-purple-50/60 p-5 text-sm text-gray-700">
-        <span class="font-semibold">Nota:</span> Esta pantalla ya envía solicitudes a la API de Growcap según la configuración de <code>GROWCAP_API_BASE_URL</code>.
+        <span class="font-semibold">Nota:</span> Esta pantalla consume <code>/api/ahorros/planes</code> y envía solicitudes a <code>/api/ahorros</code> usando <code>GROWCAP_API_BASE_URL</code> y el token configurado.
       </div>
     </div>
   </div>
