@@ -147,17 +147,18 @@ const extractAhorroPayload = (payload) => {
   return payload.ahorro || payload.data?.ahorro || payload.data || {};
 };
 
+/**
+ * Merge: soporta returnUrl opcional y siempre manda body + return_url (si aplica).
+ */
 const startStripeCheckout = async ({ apiBaseUrl, token, tokenType, ahorroId, body, returnUrl }) => {
   const endpointTemplate =
     savingsForm?.getAttribute('data-savings-stripe-endpoint-template') ||
     '/api/ahorros/{id}/stripe/checkout';
 
   const endpoint = endpointTemplate.replace('{id}', ahorroId);
-  const payload = { ...body };
 
-  if (returnUrl) {
-    payload.return_url = returnUrl;
-  }
+  const payload = { ...(body || {}) };
+  if (returnUrl) payload.return_url = returnUrl;
 
   const response = await fetch(buildApiUrl(apiBaseUrl, endpoint), {
     method: 'POST',
@@ -252,7 +253,10 @@ const handleSavingsSubmit = () => {
 
     const apiBaseUrl = (savingsForm.getAttribute('data-api-base-url') || '').replace(/\/$/, '');
     const requestEndpoint = savingsForm.getAttribute('data-savings-request-endpoint') || '/api/ahorros';
-    const returnUrl = savingsForm.getAttribute('data-savings-stripe-return-url');
+
+    // returnUrl configurable + fallback
+    const configuredReturnUrl = savingsForm.getAttribute('data-savings-stripe-return-url');
+    const returnUrl = configuredReturnUrl || `${window.location.origin}/ahorro`;
 
     const token = localStorage.getItem('gc_access_token');
     const tokenType = localStorage.getItem('gc_token_type') || 'Bearer';
