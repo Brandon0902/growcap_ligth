@@ -161,7 +161,7 @@ class LoanRequestService
 
     private function buildErrorMessage($json, string $fallback): string
     {
-        $message = data_get($json, 'message', $fallback);
+        $message = data_get($json, 'message', data_get($json, 'error', $fallback));
         $errors = $this->extractErrors($json);
 
         if (empty($errors)) {
@@ -178,6 +178,10 @@ class LoanRequestService
         }
 
         $errors = [];
+        $singleError = data_get($json, 'error');
+        if (is_string($singleError) && $singleError !== '') {
+            $errors[] = $singleError;
+        }
         foreach (['errors', 'detalles'] as $key) {
             $values = data_get($json, $key);
             if (!is_array($values)) {

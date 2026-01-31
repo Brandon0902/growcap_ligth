@@ -152,6 +152,7 @@ const loadPlans = async () => {
 
   const apiBaseUrl = (loanForm.getAttribute('data-api-base-url') || '').replace(/\/$/, '');
   const endpoint = loanForm.getAttribute('data-loan-plans-endpoint') || '/prestamos/planes';
+  const url = buildApiUrl(apiBaseUrl, endpoint);
 
   const token = localStorage.getItem('gc_access_token');
   const tokenType = localStorage.getItem('gc_token_type') || 'Bearer';
@@ -164,7 +165,8 @@ const loadPlans = async () => {
   }
 
   try {
-    const response = await fetch(buildApiUrl(apiBaseUrl, endpoint), {
+    console.info('[Growcap préstamos] Cargando planes desde:', url);
+    const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
         Authorization: `${tokenType} ${token}`,
