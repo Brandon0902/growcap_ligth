@@ -18,6 +18,18 @@
       @if (session('status_message'))
         <div class="mt-6 rounded-2xl border px-4 py-3 text-sm {{ session('status_type') === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700' }}">
           {{ session('status_message') }}
+          @if (session('status_errors'))
+            @php
+              $statusErrors = (array) session('status_errors');
+            @endphp
+            @if (count($statusErrors) > 0)
+              <ul class="mt-2 list-disc pl-5 text-xs">
+                @foreach ($statusErrors as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+            @endif
+          @endif
         </div>
       @endif
 

@@ -28,6 +28,14 @@ const getJson = async (response) => {
   }
 };
 
+const logPlanError = (message, details = null) => {
+  if (details) {
+    console.error(`[Growcap préstamos] ${message}`, details);
+  } else {
+    console.error(`[Growcap préstamos] ${message}`);
+  }
+};
+
 const setHiddenToken = (token, tokenType = 'Bearer') => {
   if (!loanForm) return;
   const tokenInput = loanForm.querySelector('input[name="auth_token"]');
@@ -150,7 +158,10 @@ const loadPlans = async () => {
 
   setHiddenToken(token, tokenType);
 
-  if (!apiBaseUrl || !token) return;
+  if (!apiBaseUrl || !token) {
+    logPlanError('No se pudo cargar planes: falta base URL o token.');
+    return;
+  }
 
   try {
     const response = await fetch(buildApiUrl(apiBaseUrl, endpoint), {
@@ -162,12 +173,18 @@ const loadPlans = async () => {
 
     const data = await getJson(response);
 
-    if (response.ok) {
-      renderPlans(data?.data || []);
-      updatePlanFields();
+    if (!response.ok) {
+      logPlanError('Error al cargar planes de préstamo.', {
+        status: response.status,
+        response: data,
+      });
+      return;
     }
+
+    renderPlans(data?.data || []);
+    updatePlanFields();
   } catch (error) {
-    // silent
+    logPlanError('Error inesperado al cargar planes de préstamo.', error);
   }
 };
 
