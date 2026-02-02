@@ -6,7 +6,9 @@ use App\Http\Controllers\Loans\LoanRequestController;
 use App\Http\Controllers\Savings\SavingsRequestController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'dashboard')->name('dashboard');
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('dashboard');
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/ahorro', 'ahorro.index')->name('ahorro.index');
 Route::get('/cliente/ahorros', function () {
