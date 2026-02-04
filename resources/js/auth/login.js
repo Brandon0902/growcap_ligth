@@ -33,6 +33,7 @@ if (loginForm) {
   const apiBaseUrl = (document.querySelector('[data-api-base-url]')?.getAttribute('data-api-base-url') || '')
     .replace(/\/$/, '');
   const loginEndpoint = apiBaseUrl ? `${apiBaseUrl}/auth/login` : '/api/auth/login';
+  const redirectUrl = loginForm.getAttribute('data-redirect-url') || '/';
 
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -77,7 +78,7 @@ if (loginForm) {
 
       updateStatus(statusEl, '¡Listo! Redirigiendo al panel...', 'success');
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = redirectUrl;
       }, 800);
     } catch (error) {
       updateStatus(statusEl, 'No se pudo conectar con el servidor. Intenta de nuevo.', 'error');
