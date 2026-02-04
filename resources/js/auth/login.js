@@ -63,7 +63,13 @@ if (loginForm) {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      let data = null;
+
+      try {
+        data = await response.json();
+      } catch (error) {
+        data = null;
+      }
 
       if (!response.ok) {
         const message =
@@ -72,13 +78,19 @@ if (loginForm) {
         return;
       }
 
-      localStorage.setItem('gc_token_type', data.token_type || 'Bearer');
-      localStorage.setItem('gc_access_token', data.access_token);
-      localStorage.setItem('gc_user', JSON.stringify(data.user || {}));
+      if (data?.access_token) {
+        localStorage.setItem('gc_token_type', data.token_type || 'Bearer');
+        localStorage.setItem('gc_access_token', data.access_token);
+      }
+
+      if (data?.user) {
+        localStorage.setItem('gc_user', JSON.stringify(data.user));
+      }
 
       updateStatus(statusEl, '¡Listo! Redirigiendo al panel...', 'success');
       setTimeout(() => {
-        window.location.href = redirectUrl;
+        const targetUrl = data?.redirect_url || redirectUrl;
+        window.location.href = targetUrl;
       }, 800);
     } catch (error) {
       updateStatus(statusEl, 'No se pudo conectar con el servidor. Intenta de nuevo.', 'error');
