@@ -24,6 +24,7 @@
         <form
           data-login-form
           data-api-base-url="{{ config('app.backend_api_url') }}"
+          data-redirect-url="{{ route('dashboard') }}"
           class="space-y-4"
         >
           <div>
