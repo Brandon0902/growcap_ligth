@@ -1,5 +1,12 @@
 const loginForm = document.querySelector('[data-login-form]');
 
+const isDebugEnabled = () => localStorage.getItem('gc_debug') === '1';
+const logDebug = (...args) => {
+  if (isDebugEnabled()) {
+    console.info('[Growcap login]', ...args);
+  }
+};
+
 const updateStatus = (statusEl, message, variant = 'info') => {
   if (!statusEl) return;
 
@@ -27,6 +34,7 @@ const updateStatus = (statusEl, message, variant = 'info') => {
 };
 
 if (loginForm) {
+  logDebug('Formulario de login detectado, inicializando listeners.');
   const statusEl = document.querySelector('[data-login-status]');
   const submitButton = document.querySelector('[data-login-submit]');
 
@@ -37,6 +45,7 @@ if (loginForm) {
 
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    logDebug('Submit de login interceptado.');
 
     if (submitButton) {
       submitButton.disabled = true;
@@ -54,6 +63,8 @@ if (loginForm) {
     };
 
     try {
+      logDebug('POST login', { endpoint: loginEndpoint, payload });
+
       const response = await fetch(loginEndpoint, {
         method: 'POST',
         headers: {
@@ -70,6 +81,8 @@ if (loginForm) {
       } catch (error) {
         data = null;
       }
+
+      logDebug('Respuesta login', { status: response.status, data });
 
       if (!response.ok) {
         const message =
@@ -90,9 +103,11 @@ if (loginForm) {
       updateStatus(statusEl, '¡Listo! Redirigiendo al panel...', 'success');
       setTimeout(() => {
         const targetUrl = data?.redirect_url || redirectUrl;
+        logDebug('Redirigiendo a', targetUrl);
         window.location.href = targetUrl;
       }, 800);
     } catch (error) {
+      logDebug('Error en login', error);
       updateStatus(statusEl, 'No se pudo conectar con el servidor. Intenta de nuevo.', 'error');
     } finally {
       if (submitButton) {
