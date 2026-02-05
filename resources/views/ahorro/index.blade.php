@@ -153,18 +153,9 @@
                 <input
                   type="radio"
                   name="payment_method"
-                  value="normal"
-                  class="text-purple-700"
-                  checked
-                >
-                <span>Registrar ahorro (pago manual)</span>
-              </label>
-              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
-                <input
-                  type="radio"
-                  name="payment_method"
                   value="stripe"
                   class="text-purple-700"
+                  checked
                 >
                 <span>Pagar ahora con Stripe</span>
               </label>
