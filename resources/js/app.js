@@ -20,8 +20,6 @@ const loadIfPresent = (selector, loader, label) => {
 };
 
 const bootPageModules = () => {
-  loadIfPresent('[data-login-form]', () => import('./auth/login'), 'auth/login');
-
   loadIfPresent(
     '[data-investment-plan-select], [data-investment-form]',
     () => import('./inversion/plans'),

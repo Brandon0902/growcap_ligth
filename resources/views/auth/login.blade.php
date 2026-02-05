@@ -21,17 +21,19 @@
           <p class="text-sm text-gray-500 mt-1">Ingresa con tu correo, usuario o código de cliente.</p>
         </div>
 
-        <form
-          data-login-form
-          data-api-base-url="{{ config('app.backend_api_url') }}"
-          data-redirect-url="{{ route('dashboard') }}"
-          class="space-y-4"
-        >
+        <form method="POST" action="{{ route('login.store') }}" class="space-y-4">
+          @csrf
           <div>
             <label for="login" class="text-sm font-semibold text-gray-700">Email, usuario o código</label>
             <input id="login" name="login" type="text" autocomplete="username"
                    class="mt-1 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                   placeholder="cliente@correo.com" required>
+                   placeholder="cliente@correo.com" value="{{ old('login') }}" required>
+            @error('login')
+              <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
+            @enderror
+            @error('email')
+              <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
+            @enderror
           </div>
 
           <div>
@@ -39,17 +41,24 @@
             <input id="password" name="password" type="password" autocomplete="current-password"
                    class="mt-1 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-purple-500 focus:ring-purple-500"
                    placeholder="••••••••" required>
+            @error('password')
+              <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
+            @enderror
           </div>
 
           <div class="flex items-center justify-between text-sm">
             <label class="inline-flex items-center gap-2 text-gray-500">
-              <input type="checkbox" name="single" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+              <input type="checkbox" name="single" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500" @checked(old('single'))>
               Mantener solo esta sesión
             </label>
             <span class="text-gray-400">Dispositivo: cliente-web</span>
           </div>
 
-          <div data-login-status class="hidden rounded-2xl border px-4 py-3 text-sm"></div>
+          @if ($errors->has('login') || $errors->has('password'))
+            <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              Verifica los datos ingresados e intenta de nuevo.
+            </div>
+          @endif
 
           <button type="submit" data-login-submit
                   class="w-full rounded-2xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-200/60 transition hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
