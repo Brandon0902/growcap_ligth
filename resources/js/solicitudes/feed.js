@@ -59,8 +59,18 @@ const buildStatus = (status) => {
   return { label: normalized, classes: 'bg-gray-100 text-gray-600' };
 };
 
+const getPlanLabel = (plan) => {
+  if (!plan) return null;
+  if (typeof plan === 'string' || typeof plan === 'number') return String(plan);
+  if (typeof plan === 'object') {
+    return getFirstValue(plan?.label, plan?.nombre, plan?.name, plan?.titulo, plan?.plan, plan?.tipo);
+  }
+  return null;
+};
+
 const buildMeta = (item) => {
-  const plan = getFirstValue(item?.plan, item?.activo, item?.producto, item?.tipo, item?.nombre_plan);
+  const planRaw = getFirstValue(item?.plan, item?.activo, item?.producto, item?.tipo, item?.nombre_plan);
+  const plan = getPlanLabel(planRaw);
   const plazo = getFirstValue(item?.plazo, item?.periodo, item?.tiempo, item?.meses);
   const frecuencia = getFirstValue(item?.frecuencia, item?.frecuencia_pago);
 
