@@ -152,13 +152,26 @@
           </form>
         </div>
 
-        <div class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5">
-          <div class="text-sm text-gray-500">Acción secundaria</div>
-          <div class="mt-2 text-lg font-bold">Ver movimientos</div>
-          <div class="mt-4">
-            <button class="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-black/90 transition" type="button">
-              Ver historial
-            </button>
+        <div
+          class="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-5"
+          data-requests-feed
+          data-api-base-url="{{ config('app.backend_api_url') }}"
+          data-requests-endpoint="/api/inversiones"
+          data-requests-type="Inversión"
+          data-requests-empty="Aún no tienes solicitudes de inversión."
+          data-requests-limit="4"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm text-gray-500">Tus solicitudes</div>
+              <div class="mt-1 text-lg font-bold">Historial reciente</div>
+            </div>
+            <div class="text-xs text-gray-400" data-requests-count>0 solicitudes</div>
+          </div>
+          <div class="mt-4 grid gap-3" data-requests-list>
+            <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+              Cargando solicitudes...
+            </div>
           </div>
         </div>
       </div>

@@ -37,6 +37,12 @@ const bootPageModules = () => {
     () => import('./prestamos/plans'),
     'prestamos/plans'
   );
+
+  loadIfPresent(
+    '[data-requests-feed]',
+    () => import('./solicitudes/feed'),
+    'solicitudes/feed'
+  );
 };
 
 if (document.readyState === 'loading') {
