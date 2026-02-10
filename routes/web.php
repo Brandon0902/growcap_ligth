@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ApiSessionLoginController;
 use App\Http\Controllers\Investments\InvestmentPageController;
 use App\Http\Controllers\Investments\InvestmentRequestController;
 use App\Http\Controllers\Loans\LoanRequestController;
+use App\Http\Controllers\Profile\ProfilePageController;
 use App\Http\Controllers\Savings\SavingsRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,7 @@ Route::middleware('api.session')->group(function () {
     });
     Route::get('/inversion', [InvestmentPageController::class, 'index'])->name('inversion.index');
     Route::view('/prestamos', 'prestamos.index')->name('prestamos.index');
+    Route::get('/perfil', [ProfilePageController::class, 'show'])->name('perfil.show');
 
     Route::post('/prestamos/solicitud', [LoanRequestController::class, 'store'])
         ->name('prestamos.solicitud');
