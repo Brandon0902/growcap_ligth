@@ -42,8 +42,41 @@ const formatDate = (value) => {
 
 const getFirstValue = (...values) => values.find((value) => value !== undefined && value !== null && value !== '');
 
+const statusMap = {
+  1: 'Pendiente',
+  2: 'Activa',
+  3: 'Terminada',
+  4: 'Rechazada',
+  5: 'Cancelada',
+  6: 'Vencida',
+};
+
+const getStatusLabel = (status) => {
+  if (!status) return null;
+  if (typeof status === 'number' && statusMap[status]) return statusMap[status];
+  if (typeof status === 'string') {
+    const trimmed = status.trim();
+    if (trimmed !== '' && statusMap[trimmed]) return statusMap[trimmed];
+    return trimmed || null;
+  }
+  if (typeof status === 'object') {
+    const directLabel = getFirstValue(
+      status?.label,
+      status?.nombre,
+      status?.name,
+      status?.descripcion,
+      status?.estado,
+      status?.estatus
+    );
+    if (directLabel) return directLabel;
+    const codeValue = getFirstValue(status?.id, status?.code, status?.valor, status?.status);
+    if (codeValue && statusMap[codeValue]) return statusMap[codeValue];
+  }
+  return null;
+};
+
 const buildStatus = (status) => {
-  const normalized = String(status || 'En revisión');
+  const normalized = String(getStatusLabel(status) || 'En revisión');
   const key = normalized.toLowerCase();
 
   if (['aprobado', 'aprobada', 'activo'].some((value) => key.includes(value))) {
@@ -59,8 +92,18 @@ const buildStatus = (status) => {
   return { label: normalized, classes: 'bg-gray-100 text-gray-600' };
 };
 
+const getPlanLabel = (plan) => {
+  if (!plan) return null;
+  if (typeof plan === 'string' || typeof plan === 'number') return String(plan);
+  if (typeof plan === 'object') {
+    return getFirstValue(plan?.label, plan?.nombre, plan?.name, plan?.titulo, plan?.plan, plan?.tipo);
+  }
+  return null;
+};
+
 const buildMeta = (item) => {
-  const plan = getFirstValue(item?.plan, item?.activo, item?.producto, item?.tipo, item?.nombre_plan);
+  const planRaw = getFirstValue(item?.plan, item?.activo, item?.producto, item?.tipo, item?.nombre_plan);
+  const plan = getPlanLabel(planRaw);
   const plazo = getFirstValue(item?.plazo, item?.periodo, item?.tiempo, item?.meses);
   const frecuencia = getFirstValue(item?.frecuencia, item?.frecuencia_pago);
 
@@ -93,7 +136,15 @@ const renderItems = (listEl, items, typeLabel) => {
 
   items.forEach((item) => {
     const amount = getFirstValue(item?.monto, item?.cantidad, item?.monto_ahorro, item?.monto_solicitado);
-    const statusValue = getFirstValue(item?.estado, item?.status, item?.estatus);
+    const statusValue = getFirstValue(
+      item?.estado,
+      item?.status,
+      item?.estatus,
+      item?.status_text,
+      item?.estatus_texto,
+      item?.estado_texto,
+      item?.status_label
+    );
     const status = buildStatus(statusValue);
     const dateValue = getFirstValue(item?.fecha, item?.created_at, item?.fecha_creacion, item?.fecha_solicitud);
     const meta = buildMeta(item);
