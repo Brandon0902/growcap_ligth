@@ -80,16 +80,36 @@ const buildStatus = (status) => {
   const key = normalized.toLowerCase();
 
   if (['aprobado', 'aprobada', 'activo'].some((value) => key.includes(value))) {
-    return { label: normalized, classes: 'bg-emerald-50 text-emerald-700' };
+    return {
+      label: normalized,
+      chipClasses: 'request-card__badge--success',
+      toneClass: 'request-card--success',
+      icon: '✅',
+    };
   }
   if (['rechazado', 'rechazada', 'cancelado', 'cancelada'].some((value) => key.includes(value))) {
-    return { label: normalized, classes: 'bg-rose-50 text-rose-700' };
+    return {
+      label: normalized,
+      chipClasses: 'request-card__badge--danger',
+      toneClass: 'request-card--danger',
+      icon: '⛔',
+    };
   }
   if (['pendiente', 'revision', 'revisión', 'proceso'].some((value) => key.includes(value))) {
-    return { label: normalized, classes: 'bg-amber-50 text-amber-700' };
+    return {
+      label: normalized,
+      chipClasses: 'request-card__badge--warning',
+      toneClass: 'request-card--warning',
+      icon: '🕒',
+    };
   }
 
-  return { label: normalized, classes: 'bg-gray-100 text-gray-600' };
+  return {
+    label: normalized,
+    chipClasses: 'request-card__badge--neutral',
+    toneClass: 'request-card--neutral',
+    icon: '📌',
+  };
 };
 
 const getPlanLabel = (plan) => {
@@ -108,25 +128,27 @@ const buildMeta = (item) => {
   const frecuencia = getFirstValue(item?.frecuencia, item?.frecuencia_pago);
 
   const details = [];
-  if (plan) details.push(`Plan: ${plan}`);
-  if (plazo) details.push(`Plazo: ${plazo}`);
-  if (frecuencia) details.push(`Frecuencia: ${frecuencia}`);
+  if (plan) details.push({ label: 'Plan', value: plan });
+  if (plazo) details.push({ label: 'Plazo', value: plazo });
+  if (frecuencia) details.push({ label: 'Frecuencia', value: frecuencia });
 
   return details;
 };
 
 const renderEmptyState = (listEl, message) => {
   listEl.innerHTML = `
-    <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
-      ${message}
+    <div class="request-state request-state--empty">
+      <div class="request-state__icon">📭</div>
+      <div>${message}</div>
     </div>
   `;
 };
 
 const renderErrorState = (listEl, message) => {
   listEl.innerHTML = `
-    <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-6 text-center text-sm text-rose-700">
-      ${message}
+    <div class="request-state request-state--error">
+      <div class="request-state__icon">⚠️</div>
+      <div>${message}</div>
     </div>
   `;
 };
@@ -134,7 +156,7 @@ const renderErrorState = (listEl, message) => {
 const renderItems = (listEl, items, typeLabel) => {
   listEl.innerHTML = '';
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     const amount = getFirstValue(item?.monto, item?.cantidad, item?.monto_ahorro, item?.monto_solicitado);
     const statusValue = getFirstValue(
       item?.estado,
@@ -149,24 +171,36 @@ const renderItems = (listEl, items, typeLabel) => {
     const dateValue = getFirstValue(item?.fecha, item?.created_at, item?.fecha_creacion, item?.fecha_solicitud);
     const meta = buildMeta(item);
 
-    const card = document.createElement('div');
-    card.className = 'relative pl-6';
+    const card = document.createElement('article');
+    card.className = `request-card ${status.toneClass}`;
+    card.style.animationDelay = `${index * 90}ms`;
     card.innerHTML = `
-      <span class="absolute left-1.5 top-6 h-2.5 w-2.5 rounded-full bg-purple-500 shadow"></span>
-      <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="text-sm text-gray-500">${typeLabel}</div>
-            <div class="text-base font-semibold text-gray-900">${formatCurrency(amount)}</div>
-          </div>
-          <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${status.classes}">
-            ${status.label}
-          </span>
+      <div class="request-card__glow" aria-hidden="true"></div>
+      <div class="request-card__header">
+        <div>
+          <div class="request-card__type">${typeLabel}</div>
+          <div class="request-card__amount">${formatCurrency(amount)}</div>
         </div>
-        <div class="mt-3 grid gap-1 text-xs text-gray-500">
-          <div>Fecha: ${formatDate(dateValue)}</div>
-          ${meta.map((detail) => `<div>${detail}</div>`).join('')}
+        <span class="request-card__badge ${status.chipClasses}">
+          <span aria-hidden="true">${status.icon}</span>
+          ${status.label}
+        </span>
+      </div>
+      <div class="request-card__meta-grid">
+        <div class="request-card__meta-item">
+          <span class="request-card__meta-label">Fecha</span>
+          <span class="request-card__meta-value">${formatDate(dateValue)}</span>
         </div>
+        ${meta
+          .map(
+            (detail) => `
+              <div class="request-card__meta-item">
+                <span class="request-card__meta-label">${detail.label}</span>
+                <span class="request-card__meta-value">${detail.value}</span>
+              </div>
+            `
+          )
+          .join('')}
       </div>
     `;
 
