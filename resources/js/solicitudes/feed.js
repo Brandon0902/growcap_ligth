@@ -42,8 +42,24 @@ const formatDate = (value) => {
 
 const getFirstValue = (...values) => values.find((value) => value !== undefined && value !== null && value !== '');
 
+const getStatusLabel = (status) => {
+  if (!status) return null;
+  if (typeof status === 'string' || typeof status === 'number') return String(status);
+  if (typeof status === 'object') {
+    return getFirstValue(
+      status?.label,
+      status?.nombre,
+      status?.name,
+      status?.descripcion,
+      status?.estado,
+      status?.estatus
+    );
+  }
+  return null;
+};
+
 const buildStatus = (status) => {
-  const normalized = String(status || 'En revisión');
+  const normalized = String(getStatusLabel(status) || 'En revisión');
   const key = normalized.toLowerCase();
 
   if (['aprobado', 'aprobada', 'activo'].some((value) => key.includes(value))) {
@@ -103,7 +119,15 @@ const renderItems = (listEl, items, typeLabel) => {
 
   items.forEach((item) => {
     const amount = getFirstValue(item?.monto, item?.cantidad, item?.monto_ahorro, item?.monto_solicitado);
-    const statusValue = getFirstValue(item?.estado, item?.status, item?.estatus);
+    const statusValue = getFirstValue(
+      item?.estado,
+      item?.status,
+      item?.estatus,
+      item?.status_text,
+      item?.estatus_texto,
+      item?.estado_texto,
+      item?.status_label
+    );
     const status = buildStatus(statusValue);
     const dateValue = getFirstValue(item?.fecha, item?.created_at, item?.fecha_creacion, item?.fecha_solicitud);
     const meta = buildMeta(item);
