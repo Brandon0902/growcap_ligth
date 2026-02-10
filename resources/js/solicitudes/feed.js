@@ -42,11 +42,25 @@ const formatDate = (value) => {
 
 const getFirstValue = (...values) => values.find((value) => value !== undefined && value !== null && value !== '');
 
+const statusMap = {
+  1: 'Pendiente',
+  2: 'Activa',
+  3: 'Terminada',
+  4: 'Rechazada',
+  5: 'Cancelada',
+  6: 'Vencida',
+};
+
 const getStatusLabel = (status) => {
   if (!status) return null;
-  if (typeof status === 'string' || typeof status === 'number') return String(status);
+  if (typeof status === 'number' && statusMap[status]) return statusMap[status];
+  if (typeof status === 'string') {
+    const trimmed = status.trim();
+    if (trimmed !== '' && statusMap[trimmed]) return statusMap[trimmed];
+    return trimmed || null;
+  }
   if (typeof status === 'object') {
-    return getFirstValue(
+    const directLabel = getFirstValue(
       status?.label,
       status?.nombre,
       status?.name,
@@ -54,6 +68,9 @@ const getStatusLabel = (status) => {
       status?.estado,
       status?.estatus
     );
+    if (directLabel) return directLabel;
+    const codeValue = getFirstValue(status?.id, status?.code, status?.valor, status?.status);
+    if (codeValue && statusMap[codeValue]) return statusMap[codeValue];
   }
   return null;
 };
