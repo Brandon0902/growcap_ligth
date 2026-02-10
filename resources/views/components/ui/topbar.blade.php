@@ -16,7 +16,7 @@
               aria-label="Apps">
         <span class="text-purple-700">▦</span>
       </button>
-      <a href="{{ route('login') }}"
+      <a href="{{ route('perfil.show') }}"
          class="h-11 w-11 rounded-2xl bg-white shadow-sm ring-1 ring-black/5 flex items-center justify-center hover:bg-purple-50 transition"
          aria-label="Perfil">
         <span class="text-purple-700">👤</span>
