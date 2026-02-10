@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" role="img" aria-label="Growcap logo">
+  <defs>
+    <linearGradient id="growcap-bg" x1="6" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF0F3"/>
+      <stop offset="1" stop-color="#D2D5DB"/>
+    </linearGradient>
+    <linearGradient id="growcap-mark" x1="10" y1="9" x2="55" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F9FAFB"/>
+      <stop offset="1" stop-color="#D4D7DC"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="32" cy="32" r="32" fill="url(#growcap-bg)"/>
+
+  <path d="M8 18C15 7.5 27 3.5 42 4.5L23.5 33.5L8 18Z" fill="url(#growcap-mark)" opacity="0.95"/>
+  <path d="M23 46L42.5 8L57 35.5L47.5 31L39 48L23 46Z" fill="#D0D3D8"/>
+  <path d="M14 44L31 34L26.5 46L14 44Z" fill="#C5C9CF"/>
+</svg>

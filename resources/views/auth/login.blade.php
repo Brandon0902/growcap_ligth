@@ -6,8 +6,8 @@
   <div class="min-h-screen flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
       <a href="{{ route('dashboard') }}" class="mb-8 inline-flex items-center gap-3">
-        <div class="h-10 w-10 rounded-2xl bg-purple-600/10 flex items-center justify-center">
-          <span class="text-purple-700 font-black text-lg">G</span>
+        <div class="h-10 w-10 overflow-hidden rounded-2xl bg-gray-100 ring-1 ring-black/5 flex items-center justify-center">
+          <img src="{{ asset('images/growcap-logo.svg') }}" alt="Logo Growcap" class="h-full w-full object-cover">
         </div>
         <div class="leading-tight">
           <div class="text-sm font-extrabold tracking-wide">GROWCAP</div>
