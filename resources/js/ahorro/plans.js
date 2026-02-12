@@ -1,4 +1,5 @@
 const savingsForm = document.querySelector('[data-savings-form]');
+const savingsWizard = document.querySelector('[data-savings-wizard]');
 const plansSelect = document.querySelector('[data-savings-plan-select]');
 const yieldInput = document.querySelector('[data-savings-plan-yield]');
 const minMonthsInput = document.querySelector('[data-savings-plan-min-months]');
@@ -8,6 +9,9 @@ const minimumLabel = document.querySelector('[data-savings-minimum]');
 const fechaFinWrapper = document.querySelector('[data-savings-fecha-fin-wrapper]');
 const fechaFinInput = document.querySelector('[data-savings-fecha-fin]');
 const submitButton = savingsForm?.querySelector('button[type="submit"]');
+
+const TOTAL_STEPS = 4;
+let currentStep = 1;
 
 const buildApiUrl = (baseUrl, endpoint) => {
   const cleanBase = (baseUrl || '').replace(/\/$/, '');
@@ -35,6 +39,92 @@ const setHiddenToken = (token, tokenType = 'Bearer') => {
 
   if (tokenInput) tokenInput.value = token || '';
   if (tokenTypeInput) tokenTypeInput.value = tokenType || 'Bearer';
+};
+
+const showStep = (step) => {
+  if (!savingsWizard) return;
+  currentStep = Math.max(1, Math.min(TOTAL_STEPS, step));
+
+  savingsWizard.querySelectorAll('[data-step-panel]').forEach((panel) => {
+    const panelStep = Number(panel.getAttribute('data-step-panel'));
+    panel.classList.toggle('hidden', panelStep !== currentStep);
+    panel.classList.toggle('grid', panelStep === currentStep);
+  });
+
+  const progress = savingsWizard.querySelector('[data-savings-progress]');
+  const currentStepLabel = savingsWizard.querySelector('[data-savings-current-step]');
+  const currentTitleLabel = savingsWizard.querySelector('[data-savings-current-title]');
+
+  if (progress) progress.style.width = `${(currentStep / TOTAL_STEPS) * 100}%`;
+  if (currentStepLabel) currentStepLabel.textContent = String(currentStep);
+  if (currentTitleLabel) {
+    const titles = { 1: 'Elige el plan', 2: 'Monto y cuota', 3: 'Método de pago', 4: 'Confirmación' };
+    currentTitleLabel.textContent = titles[currentStep] || 'Proceso';
+  }
+};
+
+const validateCurrentStep = () => {
+  if (!savingsForm) return false;
+
+  if (currentStep === 1 && (!plansSelect || !plansSelect.value)) {
+    window.alert('Primero elige un plan para continuar.');
+    return false;
+  }
+
+  if (currentStep === 2) {
+    const amountInput = savingsForm.querySelector('input[name="monto_ahorro"]');
+    const feeInput = savingsForm.querySelector('input[name="cuota"]');
+
+    if (!amountInput?.value || Number(amountInput.value) <= 0) {
+      window.alert('Escribe un monto inicial válido.');
+      return false;
+    }
+
+    if (!feeInput?.value || Number(feeInput.value) <= 0) {
+      window.alert('Escribe una cuota válida.');
+      return false;
+    }
+
+    if (!frequencySelect?.value) {
+      window.alert('Selecciona una frecuencia de depósito.');
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const bindWizardNavigation = () => {
+  if (!savingsWizard) return;
+
+  savingsWizard.querySelectorAll('[data-step-next]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!validateCurrentStep()) return;
+      showStep(currentStep + 1);
+    });
+  });
+
+  savingsWizard.querySelectorAll('[data-step-prev]').forEach((button) => {
+    button.addEventListener('click', () => showStep(currentStep - 1));
+  });
+
+  const isCompleted = savingsWizard.getAttribute('data-savings-completed') === '1';
+  const hasErrors = savingsWizard.getAttribute('data-savings-has-errors') === '1';
+
+  if (isCompleted) {
+    showStep(4);
+    return;
+  }
+
+  if (hasErrors) {
+    const hasPlan = !!plansSelect?.value;
+    const hasAmount = !!savingsForm?.querySelector('input[name="monto_ahorro"]')?.value;
+    const hasFee = !!savingsForm?.querySelector('input[name="cuota"]')?.value;
+    showStep(hasPlan && hasAmount && hasFee ? 3 : hasPlan ? 2 : 1);
+    return;
+  }
+
+  showStep(1);
 };
 
 const formatRendimiento = (value) => {
@@ -67,6 +157,7 @@ const minimumByFrequency = (monthlyMin, frequency) => {
 
 const renderPlans = (plans) => {
   if (!plansSelect) return;
+  const previousValue = plansSelect.value;
   plansSelect.innerHTML = '<option value="">Selecciona un plan</option>';
 
   if (!Array.isArray(plans) || plans.length === 0) {
@@ -87,6 +178,8 @@ const renderPlans = (plans) => {
     option.textContent = `${plan.label ?? plan.nombre ?? 'Plan sin nombre'}`;
     plansSelect.appendChild(option);
   });
+
+  if (previousValue) plansSelect.value = previousValue;
 };
 
 const updateMinimum = () => {
@@ -116,20 +209,13 @@ const updatePlanFields = () => {
   const minMonths = selected?.dataset?.minMonths ?? '';
   const isTemporada = selected?.dataset?.temporada === '1';
 
-  if (yieldInput) {
-    yieldInput.value = rendimiento !== '' ? formatRendimiento(rendimiento) : '';
-  }
-
-  if (minMonthsInput) {
-    minMonthsInput.value = minMonths !== '' ? String(minMonths) : '';
-  }
+  if (yieldInput) yieldInput.value = rendimiento !== '' ? formatRendimiento(rendimiento) : '';
+  if (minMonthsInput) minMonthsInput.value = minMonths !== '' ? String(minMonths) : '';
 
   if (fechaFinWrapper) {
     if (isTemporada) {
       fechaFinWrapper.hidden = false;
-      if (fechaFinInput) {
-        fechaFinInput.required = true;
-      }
+      if (fechaFinInput) fechaFinInput.required = true;
     } else {
       fechaFinWrapper.hidden = true;
       if (fechaFinInput) {
@@ -147,9 +233,6 @@ const extractAhorroPayload = (payload) => {
   return payload.ahorro || payload.data?.ahorro || payload.data || {};
 };
 
-/**
- * Merge: soporta returnUrl opcional y siempre manda body + return_url (si aplica).
- */
 const startStripeCheckout = async ({ apiBaseUrl, token, tokenType, ahorroId, body, returnUrl }) => {
   const endpointTemplate =
     savingsForm?.getAttribute('data-savings-stripe-endpoint-template') ||
@@ -247,14 +330,10 @@ const handleSavingsSubmit = () => {
   savingsForm.addEventListener('submit', async (event) => {
     const selectedPayment = savingsForm.querySelector('input[name="payment_method"]:checked');
 
-    if (!selectedPayment || selectedPayment.value !== 'stripe') {
-      return;
-    }
+    if (!selectedPayment || selectedPayment.value !== 'stripe') return;
 
     const apiBaseUrl = (savingsForm.getAttribute('data-api-base-url') || '').replace(/\/$/, '');
     const requestEndpoint = savingsForm.getAttribute('data-savings-request-endpoint') || '/api/ahorros';
-
-    // returnUrl configurable + fallback
     const configuredReturnUrl = savingsForm.getAttribute('data-savings-stripe-return-url');
     const returnUrl = configuredReturnUrl || `${window.location.origin}/ahorro`;
 
@@ -295,9 +374,7 @@ const handleSavingsSubmit = () => {
       const ahorroPayload = extractAhorroPayload(data);
       const ahorroId = ahorroPayload?.id ?? data?.id ?? null;
 
-      if (!ahorroId) {
-        throw new Error('No se encontró el ID del ahorro para iniciar el pago.');
-      }
+      if (!ahorroId) throw new Error('No se encontró el ID del ahorro para iniciar el pago.');
 
       const montoInicial = Number(payload.monto_ahorro || 0);
       const cuota = Number(payload.cuota || 0);
@@ -352,7 +429,7 @@ const handleSavingsSubmit = () => {
     } finally {
       if (submitButton) {
         submitButton.disabled = false;
-        submitButton.textContent = 'Enviar solicitud';
+        submitButton.textContent = 'Confirmar solicitud';
       }
     }
   });
@@ -364,5 +441,6 @@ if (savingsForm && plansSelect) {
   plansSelect.addEventListener('change', updatePlanFields);
   frequencySelect?.addEventListener('change', updateMinimum);
   updatePlanFields();
+  bindWizardNavigation();
   handleSavingsSubmit();
 }
