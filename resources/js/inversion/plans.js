@@ -1,14 +1,17 @@
 const investmentForm = document.querySelector('[data-investment-form]');
+const investmentWizard = document.querySelector('[data-investment-wizard]');
 const plansSelect = document.querySelector('[data-investment-plan-select]');
 const periodInput = document.querySelector('[data-investment-plan-period]');
 const yieldInput = document.querySelector('[data-investment-plan-yield]');
 const submitButton = investmentForm?.querySelector('button[type="submit"]');
 
+const TOTAL_STEPS = 4;
+let currentStep = 1;
+
 const buildApiUrl = (baseUrl, endpoint) => {
   const cleanBase = (baseUrl || '').replace(/\/$/, '');
   let cleanEndpoint = endpoint || '';
 
-  // Evita /api/api cuando base ya trae /api y endpoint también
   if (cleanBase.endsWith('/api') && cleanEndpoint.startsWith('/api/')) {
     cleanEndpoint = cleanEndpoint.slice(4);
   }
@@ -35,6 +38,8 @@ const setHiddenToken = (token, tokenType = 'Bearer') => {
 
 const renderPlans = (plans) => {
   if (!plansSelect) return;
+
+  const previousValue = plansSelect.value;
   plansSelect.innerHTML = '<option value="">Selecciona un plan</option>';
 
   if (!Array.isArray(plans) || plans.length === 0) {
@@ -53,6 +58,10 @@ const renderPlans = (plans) => {
     option.textContent = `${plan.label ?? 'Plan sin nombre'}`;
     plansSelect.appendChild(option);
   });
+
+  if (previousValue) {
+    plansSelect.value = previousValue;
+  }
 };
 
 const formatRendimiento = (value) => {
@@ -91,6 +100,113 @@ const extractInvestmentId = (payload) => {
   }
 
   return null;
+};
+
+const showStep = (step) => {
+  if (!investmentWizard) return;
+  const boundedStep = Math.max(1, Math.min(TOTAL_STEPS, step));
+  currentStep = boundedStep;
+
+  const panels = investmentWizard.querySelectorAll('[data-step-panel]');
+  panels.forEach((panel) => {
+    const panelStep = Number(panel.getAttribute('data-step-panel'));
+    panel.classList.toggle('hidden', panelStep !== currentStep);
+    panel.classList.toggle('grid', panelStep === currentStep);
+  });
+
+  const progress = investmentWizard.querySelector('[data-investment-progress]');
+  const currentStepLabel = investmentWizard.querySelector('[data-investment-current-step]');
+  const currentTitleLabel = investmentWizard.querySelector('[data-investment-current-title]');
+
+  if (progress) {
+    progress.style.width = `${(currentStep / TOTAL_STEPS) * 100}%`;
+  }
+
+  if (currentStepLabel) {
+    currentStepLabel.textContent = String(currentStep);
+  }
+
+  if (currentTitleLabel) {
+    const titles = {
+      1: 'Elige el plan',
+      2: 'Monto a invertir',
+      3: 'Método de pago',
+      4: 'Confirmación',
+    };
+    currentTitleLabel.textContent = titles[currentStep] || 'Proceso';
+  }
+
+  const stepBadges = investmentWizard.querySelectorAll('[data-investment-step-badge]');
+  stepBadges.forEach((badge) => {
+    const badgeStep = Number(badge.getAttribute('data-investment-step-badge'));
+    const isActive = badgeStep === currentStep;
+    badge.classList.toggle('border-purple-500', isActive);
+    badge.classList.toggle('bg-purple-600', isActive);
+    badge.classList.toggle('text-white', isActive);
+    badge.classList.toggle('shadow-md', isActive);
+    badge.classList.toggle('border-purple-200', !isActive);
+    badge.classList.toggle('bg-white', !isActive);
+    badge.classList.toggle('text-purple-700', !isActive);
+  });
+};
+
+const validateCurrentStep = () => {
+  if (!investmentForm) return false;
+
+  if (currentStep === 1) {
+    if (!plansSelect || !plansSelect.value) {
+      window.alert('Primero elige un plan para continuar.');
+      return false;
+    }
+  }
+
+  if (currentStep === 2) {
+    const amountInput = investmentForm.querySelector('input[name="cantidad"]');
+    if (!amountInput || !amountInput.value || Number(amountInput.value) <= 0) {
+      window.alert('Escribe una cantidad válida para continuar.');
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const bindWizardNavigation = () => {
+  if (!investmentWizard) return;
+
+  const nextButtons = investmentWizard.querySelectorAll('[data-step-next]');
+  const prevButtons = investmentWizard.querySelectorAll('[data-step-prev]');
+
+  nextButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!validateCurrentStep()) return;
+      showStep(currentStep + 1);
+    });
+  });
+
+  prevButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      showStep(currentStep - 1);
+    });
+  });
+
+  const isCompleted = investmentWizard.getAttribute('data-investment-completed') === '1';
+  const hasErrors = investmentWizard.getAttribute('data-investment-has-errors') === '1';
+
+  if (isCompleted) {
+    showStep(4);
+    return;
+  }
+
+  if (hasErrors) {
+    const hasPlan = !!plansSelect?.value;
+    const amountInput = investmentForm?.querySelector('input[name="cantidad"]');
+    const hasAmount = !!amountInput?.value;
+    showStep(hasPlan && hasAmount ? 3 : hasPlan ? 2 : 1);
+    return;
+  }
+
+  showStep(1);
 };
 
 const startStripeCheckout = async ({ apiBaseUrl, token, tokenType, investmentId }) => {
@@ -133,7 +249,6 @@ const loadPlans = async () => {
   const token = localStorage.getItem('gc_access_token');
   const tokenType = localStorage.getItem('gc_token_type') || 'Bearer';
 
-  // ✅ importante: tu POST tradicional usa estos hidden inputs
   setHiddenToken(token, tokenType);
 
   if (!apiBaseUrl || !token) return;
@@ -163,7 +278,6 @@ const handleInvestmentSubmit = () => {
   investmentForm.addEventListener('submit', async (event) => {
     const selectedPayment = investmentForm.querySelector('input[name="payment_method"]:checked');
 
-    // Si no es Stripe, deja que el submit normal siga (Laravel)
     if (!selectedPayment || selectedPayment.value !== 'stripe') {
       return;
     }
@@ -217,7 +331,7 @@ const handleInvestmentSubmit = () => {
     } finally {
       if (submitButton) {
         submitButton.disabled = false;
-        submitButton.textContent = 'Enviar solicitud';
+        submitButton.textContent = 'Confirmar solicitud';
       }
     }
   });
@@ -227,5 +341,6 @@ if (investmentForm && plansSelect) {
   loadPlans();
   plansSelect.addEventListener('change', updatePlanFields);
   updatePlanFields();
+  bindWizardNavigation();
   handleInvestmentSubmit();
 }

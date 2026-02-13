@@ -1,4 +1,5 @@
 const loanForm = document.querySelector('[data-loan-form]');
+const loanWizard = document.querySelector('[data-loan-wizard]');
 const plansSelect = document.querySelector('[data-loan-plan-select]');
 const periodInput = document.querySelector('[data-loan-plan-period]');
 const weeksInput = document.querySelector('[data-loan-plan-weeks]');
@@ -8,6 +9,9 @@ const amountInput = document.querySelector('[data-loan-amount]');
 const avalToggles = document.querySelectorAll('[data-loan-aval-toggle]');
 const avalCodeWrapper = document.querySelector('[data-loan-aval-code]');
 const avalDocsWrapper = document.querySelector('[data-loan-aval-docs]');
+
+const TOTAL_STEPS = 4;
+let currentStep = 1;
 
 const buildApiUrl = (baseUrl, endpoint) => {
   const cleanBase = (baseUrl || '').replace(/\/$/, '');
@@ -45,6 +49,91 @@ const setHiddenToken = (token, tokenType = 'Bearer') => {
   if (tokenTypeInput) tokenTypeInput.value = tokenType || 'Bearer';
 };
 
+const showStep = (step) => {
+  if (!loanWizard) return;
+  currentStep = Math.max(1, Math.min(TOTAL_STEPS, step));
+
+  loanWizard.querySelectorAll('[data-step-panel]').forEach((panel) => {
+    const panelStep = Number(panel.getAttribute('data-step-panel'));
+    panel.classList.toggle('hidden', panelStep !== currentStep);
+    panel.classList.toggle('grid', panelStep === currentStep);
+  });
+
+  const progress = loanWizard.querySelector('[data-loan-progress]');
+  const currentStepLabel = loanWizard.querySelector('[data-loan-current-step]');
+  const currentTitleLabel = loanWizard.querySelector('[data-loan-current-title]');
+
+  if (progress) progress.style.width = `${(currentStep / TOTAL_STEPS) * 100}%`;
+  if (currentStepLabel) currentStepLabel.textContent = String(currentStep);
+  if (currentTitleLabel) {
+    const titles = { 1: 'Elige el plan', 2: 'Monto solicitado', 3: 'Validación de aval', 4: 'Confirmación' };
+    currentTitleLabel.textContent = titles[currentStep] || 'Proceso';
+  }
+
+  const stepBadges = loanWizard.querySelectorAll('[data-loan-step-badge]');
+  stepBadges.forEach((badge) => {
+    const badgeStep = Number(badge.getAttribute('data-loan-step-badge'));
+    const isActive = badgeStep === currentStep;
+    badge.classList.toggle('border-purple-500', isActive);
+    badge.classList.toggle('bg-purple-600', isActive);
+    badge.classList.toggle('text-white', isActive);
+    badge.classList.toggle('shadow-md', isActive);
+    badge.classList.toggle('border-purple-200', !isActive);
+    badge.classList.toggle('bg-white', !isActive);
+    badge.classList.toggle('text-purple-700', !isActive);
+  });
+};
+
+const validateCurrentStep = () => {
+  if (!loanForm) return false;
+
+  if (currentStep === 1 && (!plansSelect || !plansSelect.value)) {
+    window.alert('Primero elige un plan para continuar.');
+    return false;
+  }
+
+  if (currentStep === 2) {
+    if (!amountInput?.value || Number(amountInput.value) <= 0) {
+      window.alert('Escribe un monto válido para continuar.');
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const bindWizardNavigation = () => {
+  if (!loanWizard) return;
+
+  loanWizard.querySelectorAll('[data-step-next]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!validateCurrentStep()) return;
+      showStep(currentStep + 1);
+    });
+  });
+
+  loanWizard.querySelectorAll('[data-step-prev]').forEach((button) => {
+    button.addEventListener('click', () => showStep(currentStep - 1));
+  });
+
+  const isCompleted = loanWizard.getAttribute('data-loan-completed') === '1';
+  const hasErrors = loanWizard.getAttribute('data-loan-has-errors') === '1';
+
+  if (isCompleted) {
+    showStep(4);
+    return;
+  }
+
+  if (hasErrors) {
+    const hasPlan = !!plansSelect?.value;
+    const hasAmount = !!amountInput?.value;
+    showStep(hasPlan && hasAmount ? 3 : hasPlan ? 2 : 1);
+    return;
+  }
+
+  showStep(1);
+};
+
 const formatPercentage = (value) => {
   if (value === null || value === undefined || value === '') return '';
   const numeric = Number(value);
@@ -68,8 +157,8 @@ const formatCurrency = (value) => {
 
 const renderPlans = (plans) => {
   if (!plansSelect) return;
+  const selectedValue = plansSelect.dataset.loanSelected || plansSelect.value || '';
   plansSelect.innerHTML = '<option value="">Selecciona un plan</option>';
-  const selectedValue = plansSelect.dataset.loanSelected || '';
 
   if (!Array.isArray(plans) || plans.length === 0) {
     const option = document.createElement('option');
@@ -88,9 +177,7 @@ const renderPlans = (plans) => {
     option.dataset.montoMin = plan.monto_min ?? plan.monto_minimo ?? '';
     option.dataset.montoMax = plan.monto_max ?? plan.monto_maximo ?? '';
     option.textContent = plan.label ?? 'Plan sin nombre';
-    if (selectedValue && option.value === selectedValue) {
-      option.selected = true;
-    }
+    if (selectedValue && option.value === selectedValue) option.selected = true;
     plansSelect.appendChild(option);
   });
 };
@@ -110,16 +197,11 @@ const updatePlanFields = () => {
   if (maxInput) maxInput.value = montoMax !== '' ? formatCurrency(montoMax) : '';
 
   if (amountInput) {
-    if (montoMin !== '') {
-      amountInput.min = String(montoMin);
-    } else {
-      amountInput.removeAttribute('min');
-    }
-    if (montoMax !== '') {
-      amountInput.max = String(montoMax);
-    } else {
-      amountInput.removeAttribute('max');
-    }
+    if (montoMin !== '') amountInput.min = String(montoMin);
+    else amountInput.removeAttribute('min');
+
+    if (montoMax !== '') amountInput.max = String(montoMax);
+    else amountInput.removeAttribute('max');
   }
 };
 
@@ -136,9 +218,7 @@ const updateAvalMode = () => {
     'input[name="doc_solicitud_aval"], input[name="doc_comprobante_domicilio"], input[name="doc_ine_frente"], input[name="doc_ine_reverso"]'
   );
 
-  if (codeInput) {
-    codeInput.required = useCode;
-  }
+  if (codeInput) codeInput.required = useCode;
 
   if (docInputs && docInputs.length > 0) {
     docInputs.forEach((input) => {
@@ -165,7 +245,6 @@ const loadPlans = async () => {
   }
 
   try {
-    console.info('[Growcap préstamos] Cargando planes desde:', url);
     const response = await fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -195,6 +274,7 @@ if (loanForm && plansSelect) {
   plansSelect.addEventListener('change', updatePlanFields);
   updatePlanFields();
   updateAvalMode();
+  bindWizardNavigation();
 }
 
 if (avalToggles.length > 0) {
