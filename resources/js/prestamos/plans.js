@@ -69,6 +69,19 @@ const showStep = (step) => {
     const titles = { 1: 'Elige el plan', 2: 'Monto solicitado', 3: 'Validación de aval', 4: 'Confirmación' };
     currentTitleLabel.textContent = titles[currentStep] || 'Proceso';
   }
+
+  const stepBadges = loanWizard.querySelectorAll('[data-loan-step-badge]');
+  stepBadges.forEach((badge) => {
+    const badgeStep = Number(badge.getAttribute('data-loan-step-badge'));
+    const isActive = badgeStep === currentStep;
+    badge.classList.toggle('border-purple-500', isActive);
+    badge.classList.toggle('bg-purple-600', isActive);
+    badge.classList.toggle('text-white', isActive);
+    badge.classList.toggle('shadow-md', isActive);
+    badge.classList.toggle('border-purple-200', !isActive);
+    badge.classList.toggle('bg-white', !isActive);
+    badge.classList.toggle('text-purple-700', !isActive);
+  });
 };
 
 const validateCurrentStep = () => {

@@ -20,7 +20,7 @@
   @endphp
 
   <div class="py-8 lg:py-10">
-    <div class="rounded-3xl bg-white/70 backdrop-blur shadow-sm ring-1 ring-black/5 p-6 sm:p-8">
+    <div class="rounded-3xl bg-white/80 backdrop-blur-xl shadow-xl ring-1 ring-purple-100 p-6 sm:p-8">
       <div class="flex items-center gap-3">
         <div class="h-12 w-12 rounded-2xl bg-purple-50 flex items-center justify-center">
           <span class="text-xl">💳</span>
@@ -56,12 +56,18 @@
       @endif
 
       <div
-        class="mt-8 rounded-3xl border border-purple-100 bg-white p-4 sm:p-6 lg:p-8"
+        class="mt-8 rounded-3xl border-2 border-purple-200 bg-gradient-to-b from-white to-purple-50/60 p-4 shadow-lg sm:p-6 lg:p-8"
         data-loan-wizard
         data-loan-completed="{{ $loanSuccess ? '1' : '0' }}"
         data-loan-has-errors="{{ $errors->any() ? '1' : '0' }}"
       >
         <div class="mb-8">
+          <div class="mb-5 grid gap-2 sm:grid-cols-4">
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-loan-step-badge="1">🎯 Plan</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-loan-step-badge="2">💵 Monto</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-loan-step-badge="3">🛡️ Aval</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-loan-step-badge="4">✅ Confirmación</div>
+          </div>
           <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-purple-700">
             <span>Paso <span data-loan-current-step>{{ $loanSuccess ? 4 : 1 }}</span> de 4</span>
             <span data-loan-current-title>{{ $loanSuccess ? 'Confirmación' : 'Elige el plan' }}</span>
@@ -87,30 +93,30 @@
           <section class="grid gap-4 text-center" data-step-panel="1">
             <h2 class="text-3xl font-black text-gray-900">Elige el plan</h2>
             <p class="text-sm text-gray-500">Paso 1: selecciona el plan de préstamo.</p>
-            <select class="mx-auto h-14 w-full max-w-xl rounded-2xl border border-gray-200 px-4 text-lg" name="id_activo" required data-loan-plan-select data-loan-selected="{{ old('id_activo') }}">
+            <select class="mx-auto h-14 w-full max-w-xl rounded-2xl border-2 border-purple-200 bg-white px-4 text-lg shadow-sm" name="id_activo" required data-loan-plan-select data-loan-selected="{{ old('id_activo') }}">
               <option value="">Selecciona un plan</option>
             </select>
-            <button type="button" class="mx-auto mt-2 h-12 w-full max-w-xs rounded-xl bg-purple-700 px-5 font-semibold text-white" data-step-next>Continuar</button>
+            <button type="button" class="mx-auto mt-2 h-12 w-full max-w-xs rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 text-lg font-bold text-white shadow-md" data-step-next>Continuar</button>
           </section>
 
           <section class="hidden grid gap-4 text-center" data-step-panel="2">
             <h2 class="text-3xl font-black text-gray-900">Escribe cuánto necesitas</h2>
             <p class="text-sm text-gray-500">Paso 2: ingresa el monto y revisa condiciones.</p>
-            <input class="mx-auto h-14 w-full max-w-xl rounded-2xl border border-gray-200 px-4 text-lg" name="cantidad" type="number" min="1" step="0.01" placeholder="Monto solicitado" value="{{ old('cantidad') }}" required data-loan-amount>
+            <input class="mx-auto h-14 w-full max-w-xl rounded-2xl border-2 border-purple-200 bg-white px-4 text-lg shadow-sm" name="cantidad" type="number" min="1" step="0.01" placeholder="Monto solicitado" value="{{ old('cantidad') }}" required data-loan-amount>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
-              <input class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600" type="text" placeholder="Periodo" readonly data-loan-plan-period>
-              <input class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600" type="text" placeholder="Semanas" readonly data-loan-plan-weeks>
+              <input class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700" type="text" placeholder="Periodo" readonly data-loan-plan-period>
+              <input class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700" type="text" placeholder="Semanas" readonly data-loan-plan-weeks>
             </div>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
-              <input class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600" type="text" placeholder="Interés" readonly data-loan-plan-interest>
-              <input class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600" type="text" placeholder="Monto máximo" readonly data-loan-plan-max>
+              <input class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700" type="text" placeholder="Interés" readonly data-loan-plan-interest>
+              <input class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700" type="text" placeholder="Monto máximo" readonly data-loan-plan-max>
             </div>
 
             <div class="mx-auto mt-2 flex w-full max-w-xl gap-3">
-              <button type="button" class="h-11 flex-1 rounded-xl border border-gray-300 font-semibold text-gray-600" data-step-prev>Regresar</button>
-              <button type="button" class="h-11 flex-1 rounded-xl bg-purple-700 font-semibold text-white" data-step-next>Continuar</button>
+              <button type="button" class="h-11 flex-1 rounded-xl border border-purple-300 bg-white font-semibold text-purple-700" data-step-prev>Regresar</button>
+              <button type="button" class="h-11 flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 font-semibold text-white" data-step-next>Continuar</button>
             </div>
           </section>
 
@@ -119,32 +125,32 @@
             <p class="text-sm text-gray-500">Paso 3: usa código o sube documentos.</p>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 text-left">
-              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+              <label class="flex items-center gap-2 rounded-xl border-2 border-purple-100 bg-white px-4 py-3 shadow-sm">
                 <input type="radio" name="aval_method" value="codigo" class="text-purple-700" checked data-loan-aval-toggle>
                 <span>Usar código de aval</span>
               </label>
-              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+              <label class="flex items-center gap-2 rounded-xl border-2 border-purple-100 bg-white px-4 py-3 shadow-sm">
                 <input type="radio" name="aval_method" value="documentos" class="text-purple-700" data-loan-aval-toggle>
                 <span>Subir documentos del aval</span>
               </label>
             </div>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 text-left" data-loan-aval-code>
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="codigo_aval" placeholder="Código de aval" value="{{ old('codigo_aval') }}">
+              <input class="h-11 rounded-xl border-2 border-purple-200 bg-white px-4" name="codigo_aval" placeholder="Código de aval" value="{{ old('codigo_aval') }}">
               <p class="text-xs text-gray-500">Si no tienes código, cambia a documentos.</p>
             </div>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 text-left" data-loan-aval-docs hidden>
               <div class="text-sm text-gray-500">Documentos requeridos (PDF o imagen, máximo 5MB).</div>
-              <input class="h-11 rounded-xl border border-gray-200 px-4 py-2" name="doc_solicitud_aval" type="file" accept="application/pdf,image/jpeg,image/png">
-              <input class="h-11 rounded-xl border border-gray-200 px-4 py-2" name="doc_comprobante_domicilio" type="file" accept="application/pdf,image/jpeg,image/png">
-              <input class="h-11 rounded-xl border border-gray-200 px-4 py-2" name="doc_ine_frente" type="file" accept="application/pdf,image/jpeg,image/png">
-              <input class="h-11 rounded-xl border border-gray-200 px-4 py-2" name="doc_ine_reverso" type="file" accept="application/pdf,image/jpeg,image/png">
+              <input class="h-11 rounded-xl border-2 border-purple-200 bg-white px-4 py-2" name="doc_solicitud_aval" type="file" accept="application/pdf,image/jpeg,image/png">
+              <input class="h-11 rounded-xl border-2 border-purple-200 bg-white px-4 py-2" name="doc_comprobante_domicilio" type="file" accept="application/pdf,image/jpeg,image/png">
+              <input class="h-11 rounded-xl border-2 border-purple-200 bg-white px-4 py-2" name="doc_ine_frente" type="file" accept="application/pdf,image/jpeg,image/png">
+              <input class="h-11 rounded-xl border-2 border-purple-200 bg-white px-4 py-2" name="doc_ine_reverso" type="file" accept="application/pdf,image/jpeg,image/png">
             </div>
 
             <div class="mx-auto mt-2 flex w-full max-w-xl gap-3">
-              <button type="button" class="h-11 flex-1 rounded-xl border border-gray-300 font-semibold text-gray-600" data-step-prev>Regresar</button>
-              <button class="h-11 flex-1 rounded-xl bg-purple-700 font-semibold text-white" type="submit">Confirmar solicitud</button>
+              <button type="button" class="h-11 flex-1 rounded-xl border border-purple-300 bg-white font-semibold text-purple-700" data-step-prev>Regresar</button>
+              <button class="h-11 flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 font-semibold text-white shadow-md" type="submit">Confirmar solicitud</button>
             </div>
           </section>
 

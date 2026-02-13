@@ -19,7 +19,7 @@
   @endphp
 
   <div class="py-8 lg:py-10">
-    <div class="rounded-3xl bg-white/70 backdrop-blur shadow-sm ring-1 ring-black/5 p-6 sm:p-8">
+    <div class="rounded-3xl bg-white/80 backdrop-blur-xl shadow-xl ring-1 ring-purple-100 p-6 sm:p-8">
       <div class="flex items-center gap-3">
         <div class="h-12 w-12 rounded-2xl bg-purple-50 flex items-center justify-center">
           <span class="text-xl">🐷</span>
@@ -48,12 +48,18 @@
       @endif
 
       <div
-        class="mt-8 rounded-3xl border border-purple-100 bg-white p-4 sm:p-6 lg:p-8"
+        class="mt-8 rounded-3xl border-2 border-purple-200 bg-gradient-to-b from-white to-purple-50/60 p-4 shadow-lg sm:p-6 lg:p-8"
         data-savings-wizard
         data-savings-completed="{{ $savingsSuccess ? '1' : '0' }}"
         data-savings-has-errors="{{ $errors->any() ? '1' : '0' }}"
       >
         <div class="mb-8">
+          <div class="mb-5 grid gap-2 sm:grid-cols-4">
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-savings-step-badge="1">🎯 Plan</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-savings-step-badge="2">💵 Datos</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-savings-step-badge="3">💳 Pago</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-savings-step-badge="4">✅ Confirmación</div>
+          </div>
           <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-purple-700">
             <span>Paso <span data-savings-current-step>{{ $savingsSuccess ? 4 : 1 }}</span> de 4</span>
             <span data-savings-current-title>{{ $savingsSuccess ? 'Confirmación' : 'Elige el plan' }}</span>
@@ -87,14 +93,14 @@
             <h2 class="text-3xl font-black text-gray-900">Elige el plan</h2>
             <p class="text-sm text-gray-500">Paso 1: selecciona el plan de ahorro.</p>
             <select
-              class="mx-auto h-14 w-full max-w-xl rounded-2xl border border-gray-200 px-4 text-lg"
+              class="mx-auto h-14 w-full max-w-xl rounded-2xl border-2 border-purple-200 bg-white px-4 text-lg shadow-sm"
               name="ahorro_id"
               required
               data-savings-plan-select
             >
               <option value="">Selecciona un plan</option>
             </select>
-            <button type="button" class="mx-auto mt-2 h-12 w-full max-w-xs rounded-xl bg-purple-700 px-5 font-semibold text-white" data-step-next>Continuar</button>
+            <button type="button" class="mx-auto mt-2 h-12 w-full max-w-xs rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 text-lg font-bold text-white shadow-md" data-step-next>Continuar</button>
           </section>
 
           <section class="hidden grid gap-4 text-center" data-step-panel="2">
@@ -103,7 +109,7 @@
 
             <div class="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
               <input
-                class="h-12 rounded-xl border border-gray-200 px-4"
+                class="h-12 rounded-xl border-2 border-purple-200 bg-white px-4"
                 name="monto_ahorro"
                 type="number"
                 min="0"
@@ -114,7 +120,7 @@
               >
 
               <input
-                class="h-12 rounded-xl border border-gray-200 px-4"
+                class="h-12 rounded-xl border-2 border-purple-200 bg-white px-4"
                 name="cuota"
                 type="number"
                 min="0"
@@ -126,7 +132,7 @@
               >
             </div>
 
-            <select class="mx-auto h-12 w-full max-w-xl rounded-xl border border-gray-200 px-4" name="frecuencia_pago" required data-savings-frequency>
+            <select class="mx-auto h-12 w-full max-w-xl rounded-xl border-2 border-purple-200 bg-white px-4" name="frecuencia_pago" required data-savings-frequency>
               <option value="" disabled {{ old('frecuencia_pago') ? '' : 'selected' }}>Frecuencia de depósito</option>
               <option value="Mensual" {{ old('frecuencia_pago') === 'Mensual' ? 'selected' : '' }}>Mensual</option>
               <option value="Quincenal" {{ old('frecuencia_pago') === 'Quincenal' ? 'selected' : '' }}>Quincenal</option>
@@ -134,19 +140,19 @@
             </select>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
-              <input class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600" type="text" placeholder="Rendimiento" readonly data-savings-plan-yield>
-              <input class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600" type="text" placeholder="Meses mínimos" readonly data-savings-plan-min-months>
+              <input class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700" type="text" placeholder="Rendimiento" readonly data-savings-plan-yield>
+              <input class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700" type="text" placeholder="Meses mínimos" readonly data-savings-plan-min-months>
             </div>
 
             <div class="mx-auto w-full max-w-xl text-xs text-gray-500" data-savings-minimum>Selecciona un plan para conocer la cuota mínima.</div>
 
             <div class="mx-auto grid w-full max-w-xl gap-3" data-savings-fecha-fin-wrapper hidden>
-              <input class="h-11 rounded-xl border border-gray-200 px-4" name="fecha_fin" type="date" value="{{ old('fecha_fin') }}" data-savings-fecha-fin>
+              <input class="h-11 rounded-xl border-2 border-purple-200 bg-white px-4" name="fecha_fin" type="date" value="{{ old('fecha_fin') }}" data-savings-fecha-fin>
             </div>
 
             <div class="mx-auto mt-2 flex w-full max-w-xl gap-3">
-              <button type="button" class="h-11 flex-1 rounded-xl border border-gray-300 font-semibold text-gray-600" data-step-prev>Regresar</button>
-              <button type="button" class="h-11 flex-1 rounded-xl bg-purple-700 font-semibold text-white" data-step-next>Continuar</button>
+              <button type="button" class="h-11 flex-1 rounded-xl border border-purple-300 bg-white font-semibold text-purple-700" data-step-prev>Regresar</button>
+              <button type="button" class="h-11 flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 font-semibold text-white" data-step-next>Continuar</button>
             </div>
           </section>
 
@@ -155,15 +161,15 @@
             <p class="text-sm text-gray-500">Paso 3: pagarás tu solicitud con Stripe.</p>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 text-left">
-              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+              <label class="flex items-center gap-2 rounded-xl border-2 border-purple-100 bg-white px-4 py-3 shadow-sm">
                 <input type="radio" name="payment_method" value="stripe" class="text-purple-700" checked>
                 <span>Pagar ahora con Stripe</span>
               </label>
             </div>
 
             <div class="mx-auto mt-2 flex w-full max-w-xl gap-3">
-              <button type="button" class="h-11 flex-1 rounded-xl border border-gray-300 font-semibold text-gray-600" data-step-prev>Regresar</button>
-              <button class="h-11 flex-1 rounded-xl bg-purple-700 font-semibold text-white" type="submit">Confirmar solicitud</button>
+              <button type="button" class="h-11 flex-1 rounded-xl border border-purple-300 bg-white font-semibold text-purple-700" data-step-prev>Regresar</button>
+              <button class="h-11 flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 font-semibold text-white shadow-md" type="submit">Confirmar solicitud</button>
             </div>
           </section>
 

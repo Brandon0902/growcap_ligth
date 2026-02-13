@@ -19,7 +19,7 @@
   @endphp
 
   <div class="py-8 lg:py-10">
-    <div class="rounded-3xl bg-white/70 backdrop-blur shadow-sm ring-1 ring-black/5 p-6 sm:p-8">
+    <div class="rounded-3xl bg-white/80 backdrop-blur-xl shadow-xl ring-1 ring-purple-100 p-6 sm:p-8">
       <div class="flex items-center gap-3">
         <div class="h-12 w-12 rounded-2xl bg-purple-50 flex items-center justify-center">
           <span class="text-xl">📈</span>
@@ -48,12 +48,18 @@
       @endif
 
       <div
-        class="mt-8 rounded-3xl border border-purple-100 bg-white p-4 sm:p-6 lg:p-8"
+        class="mt-8 rounded-3xl border-2 border-purple-200 bg-gradient-to-b from-white to-purple-50/60 p-4 shadow-lg sm:p-6 lg:p-8"
         data-investment-wizard
         data-investment-completed="{{ $investmentSuccess ? '1' : '0' }}"
         data-investment-has-errors="{{ $errors->any() ? '1' : '0' }}"
       >
         <div class="mb-8">
+          <div class="mb-5 grid gap-2 sm:grid-cols-4">
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-investment-step-badge="1">🎯 Plan</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-investment-step-badge="2">💵 Monto</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-investment-step-badge="3">💳 Pago</div>
+            <div class="rounded-2xl border px-3 py-2 text-center text-xs font-semibold" data-investment-step-badge="4">✅ Confirmación</div>
+          </div>
           <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-purple-700">
             <span>Paso <span data-investment-current-step>{{ $investmentSuccess ? 4 : 1 }}</span> de 4</span>
             <span data-investment-current-title>{{ $investmentSuccess ? 'Confirmación' : 'Elige el plan' }}</span>
@@ -86,7 +92,7 @@
             <h2 class="text-3xl font-black text-gray-900">Elige el plan</h2>
             <p class="text-sm text-gray-500">Paso 1: selecciona el plan que más te guste.</p>
             <select
-              class="mx-auto h-14 w-full max-w-xl rounded-2xl border border-gray-200 px-4 text-lg"
+              class="mx-auto h-14 w-full max-w-xl rounded-2xl border-2 border-purple-200 bg-white px-4 text-lg shadow-sm"
               name="id_activo"
               required
               data-investment-plan-select
@@ -107,7 +113,7 @@
             </select>
             <button
               type="button"
-              class="mx-auto mt-2 h-12 w-full max-w-xs rounded-xl bg-purple-700 px-5 font-semibold text-white transition hover:bg-purple-800"
+              class="mx-auto mt-2 h-12 w-full max-w-xs rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 px-5 text-lg font-bold text-white shadow-md transition hover:scale-[1.01]"
               data-step-next
             >
               Continuar
@@ -118,7 +124,7 @@
             <h2 class="text-3xl font-black text-gray-900">Escribe la cantidad a invertir</h2>
             <p class="text-sm text-gray-500">Paso 2: coloca el monto y revisa los datos del plan.</p>
             <input
-              class="mx-auto h-14 w-full max-w-xl rounded-2xl border border-gray-200 px-4 text-lg"
+              class="mx-auto h-14 w-full max-w-xl rounded-2xl border-2 border-purple-200 bg-white px-4 text-lg shadow-sm"
               name="cantidad"
               type="number"
               min="1"
@@ -130,7 +136,7 @@
 
             <div class="mx-auto grid w-full max-w-xl gap-3 sm:grid-cols-2">
               <input
-                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700"
                 name="tiempo"
                 type="text"
                 placeholder="Periodo en meses"
@@ -140,7 +146,7 @@
               >
 
               <input
-                class="h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-600"
+                class="h-11 rounded-xl border border-purple-100 bg-white px-4 text-gray-700"
                 type="text"
                 placeholder="Rendimiento"
                 readonly
@@ -149,8 +155,8 @@
             </div>
 
             <div class="mx-auto mt-2 flex w-full max-w-xl gap-3">
-              <button type="button" class="h-11 flex-1 rounded-xl border border-gray-300 font-semibold text-gray-600" data-step-prev>Regresar</button>
-              <button type="button" class="h-11 flex-1 rounded-xl bg-purple-700 font-semibold text-white" data-step-next>Continuar</button>
+              <button type="button" class="h-11 flex-1 rounded-xl border border-purple-300 bg-white font-semibold text-purple-700" data-step-prev>Regresar</button>
+              <button type="button" class="h-11 flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 font-semibold text-white" data-step-next>Continuar</button>
             </div>
           </section>
 
@@ -159,7 +165,7 @@
             <p class="text-sm text-gray-500">Paso 3: elige cómo quieres completar tu solicitud.</p>
 
             <div class="mx-auto grid w-full max-w-xl gap-3 text-left">
-              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+              <label class="flex items-center gap-2 rounded-xl border-2 border-purple-100 bg-white px-4 py-3 shadow-sm">
                 <input
                   type="radio"
                   name="payment_method"
@@ -169,7 +175,7 @@
                 >
                 <span>Registrar inversión (pago manual)</span>
               </label>
-              <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-3">
+              <label class="flex items-center gap-2 rounded-xl border-2 border-purple-100 bg-white px-4 py-3 shadow-sm">
                 <input
                   type="radio"
                   name="payment_method"
@@ -182,8 +188,8 @@
             </div>
 
             <div class="mx-auto mt-2 flex w-full max-w-xl gap-3">
-              <button type="button" class="h-11 flex-1 rounded-xl border border-gray-300 font-semibold text-gray-600" data-step-prev>Regresar</button>
-              <button class="h-11 flex-1 rounded-xl bg-purple-700 font-semibold text-white transition hover:bg-purple-800" type="submit">
+              <button type="button" class="h-11 flex-1 rounded-xl border border-purple-300 bg-white font-semibold text-purple-700" data-step-prev>Regresar</button>
+              <button class="h-11 flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 font-semibold text-white shadow-md transition hover:scale-[1.01]" type="submit">
                 Confirmar solicitud
               </button>
             </div>
